@@ -22,7 +22,10 @@ public class DvrManager {
     private static final String DVR_IP = "192.168.1.10";
     private static final int DVR_PORT = 8000;
 
-    private static final int BUFFER_SIZE = 1024 * 1024 * 4;
+    /**
+     * The size of the source buffer.
+     */
+    private static final int BUFFER_POOL_SIZE = 1024 * 1024 * 4;
 
     public static final int CHANNEL_TYPE_ANALOG = 1;
     public static final int CHANNEL_TYPE_DIGIT = 0;
@@ -178,6 +181,7 @@ public class DvrManager {
                 }
             }
 
+            // Still could not login
             if (userId < 0) {
                 Log.e(TAG, "Trying to sign " + count + " times - all failed！");
                 return;
@@ -243,15 +247,15 @@ public class DvrManager {
 
     public synchronized boolean initRealPlay() {
         try {
-            // Need to be logged in
-            loginDeviceRetry(10);
-
             if (playTagID >= 0) {
                 // Stop if was playing something
                 //stopPlayer();
                 Log.d(TAG, "Now playing?");
                 return false;
             }
+
+            // Make sure we are logged into the device
+            loginDeviceRetry(10);
 
             // Preview parameter configuration
             NET_DVR_CLIENTINFO clientInfo = new NET_DVR_CLIENTINFO();
@@ -293,7 +297,7 @@ public class DvrManager {
         }
 
         // Open the video stream
-        if (!player.openStream(playerPort, buffer, bufferSize, BUFFER_SIZE)) {
+        if (!player.openStream(playerPort, buffer, bufferSize, BUFFER_POOL_SIZE)) {
             player.freePort(playerPort);
             playerPort = -1;
 
@@ -304,10 +308,10 @@ public class DvrManager {
         player.setStreamOpenMode(playerPort, Player.STREAM_REALTIME);
 
         // Set the playback buffer maximum buffer frames
-        if (!player.setDisplayBuf(playerPort, 10)) { // Frame rate, is not set to the default 15
-            Log.e(TAG, "Set the playback buffer maximum buffer frames failed！");
-            return false;
-        }
+//        if (!player.setDisplayBuf(playerPort, 10)) { // Frame rate, is not set to the default 15
+//            Log.e(TAG, "Set the playback buffer maximum buffer frames failed！");
+//            return false;
+//        }
 
         if (!player.play(playerPort, this.surfaceHolder.getSurface())) {
             // Set the video flow failure
@@ -372,81 +376,91 @@ public class DvrManager {
         }
     };
 
-    //<editor-fold desc="Real-time playback callback">
+    //<editor-fold desc="Callbacks">
+
+    //Capture the callback function
+//    private PlayerDisplayCB displayCB = new PlayerDisplayCB() {
+//        @Override
+//        public void onDisplay(int arg0, ByteBuffer arg1, int arg2, int arg3, int arg4, int arg5, int arg6, int arg7) {
+//            if (null != context) {
+//                context.sendBroadcast(new Intent(ACTION_START_RENDERING));
+//            } else {
+//                Log.e(TAG, "The Context is empty! No setContext(Context context)?");
+//            }
+//            Log.d(TAG, "The start screen rendering");
+//            if (Player.getInstance().setDisplayCB(playerPort, null)) {
+//                Log.i(TAG, "Remove display successfully！");
+//            } else {
+//                Log.e(TAG, "Remove display callback failure！");
+//            }
+//        }
+//    };
 
     private RealPlayCallBack realplayCallback = new RealPlayCallBack() {
 
         /**
          * Video stream decoding.
          *
-         * @param handle current preview handler
-         * @param dataType The iDataType data type
-         * @param buffer PDataBuffer store data buffer pointer
+         * @param handle     current preview handler
+         * @param dataType   The iDataType data type
+         * @param buffer     PDataBuffer store data buffer pointer
          * @param bufferSize IDataSize buffer size
          */
         @Override
         public void fRealDataCallBack(int handle, int dataType, byte[] buffer, int bufferSize) {
-            int i = 0;
+            try {
+                final Player player = Player.getInstance();
+                int i = 0;
 
-            switch (dataType) {
-                // First data processing
-                case HCNetSDK.NET_DVR_SYSHEAD:
-                    if (-1 == (playerPort = Player.getInstance().getPort())) {
-                        Log.d(TAG, "Can't get play port!");
-                        return;
-                    }
+                switch (dataType) {
+                    // First data processing
+                    case HCNetSDK.NET_DVR_SYSHEAD:
 
-                    if (0 < bufferSize) {
-                        if (startPlayer(buffer, bufferSize)) {
-                            Log.d(TAG, "Open player successfully.");
-                        } else {
-                            Log.d(TAG, "Open player failed.");
+                        if ((playerPort = player.getPort()) == -1) {
+                            Log.d(TAG, "Can't get play port!");
+                            return;
                         }
-                    }
 
-                    break;
-
-                case HCNetSDK.NET_DVR_STREAMDATA:
-                case HCNetSDK.NET_DVR_STD_VIDEODATA:
-                case HCNetSDK.NET_DVR_STD_AUDIODATA:
-                    if (0 < bufferSize && -1 != playerPort) {
-                        try {
-                            for (i = 0; i < 400; i++) {
-                                if (Player.getInstance().inputData(playerPort, buffer, bufferSize)) {
-                                    Log.d(TAG, "Played successfully.");
-                                    break;
-                                }
-
-                                Log.d(TAG, "Playing failed.");
-                                //Thread.sleep(10);
+                        if (bufferSize > 0) {
+                            if (startPlayer(buffer, bufferSize)) {
+                                Log.d(TAG, "Open player successfully.");
+                            } else {
+                                Log.d(TAG, "Open player failed.");
                             }
-                        } catch (Exception e) {
-                            System.out.println(e.getMessage());
                         }
 
-                        if (i == 400) {
-                            System.out.println("inputData failed");
+                        break;
+
+                    case HCNetSDK.NET_DVR_STREAMDATA:
+                    case HCNetSDK.NET_DVR_STD_VIDEODATA:
+                    case HCNetSDK.NET_DVR_STD_AUDIODATA:
+                        if (0 < bufferSize && -1 != playerPort) {
+                            player.inputData(playerPort, buffer, bufferSize);
+//                            for (i = 0; i < 400; i++) {
+//                                if (player.inputData(playerPort, buffer, bufferSize)) {
+//                                    //Log.d(TAG, "Played successfully.");
+//                                    break;
+//                                }
+//
+//                                if (i == 400) {
+//                                    Log.d(TAG, "Playing failed.");
+//                                    //Thread.sleep(10);
+//                                    System.out.println(checkForErrors());
+//                                }
+//                            }
                         }
+                        break;
 
 //					if ( Player.getInstance().inputData( playPort, buffer, bufferSize ) ) {
 //						System.out.println( "Played successfully." );
 //					} else {
 //						System.out.println( "Playing failed." );
 //					}
-                    }
+                }
 
-//				if ( -1 != playPort ) {
-//					// closing the player
-//				}
-//
-//				if ( openPlayer( buffer, bufferSize ) ) {
-//
-//				}
+            } catch (Exception ex) {
+                System.out.println(ex.getMessage());
             }
-
-            //if ( -1 == playPort ) return;
-
-            //Player.getInstance().inputData( playPort, buffer, bufferSize );
         }
     };
 
@@ -462,8 +476,11 @@ public class DvrManager {
         switch (errorCode) {
             case 17:
                 return "TODO";
+            case 400:
+                return "InputData failed";
             default:
                 return "UNKNOWN ERROR";
         }
     }
+
 }
