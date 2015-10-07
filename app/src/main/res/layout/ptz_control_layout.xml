@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="@dimen/ptzbar_height"
+    android:orientation="horizontal"
+    android:weightSum="5.0">
+
+    <!--<ImageButton-->
+        <!--android:id="@id/ptz_auto"-->
+        <!--android:layout_width="0.0dip"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:layout_weight="1.0"-->
+        <!--android:background="@drawable/ptz_auto_selector"-->
+        <!--android:contentDescription="@string/nothing" />-->
+
+    <!--<ImageButton-->
+        <!--android:id="@id/ptz_focal_length"-->
+        <!--android:layout_width="0.0dip"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:layout_weight="1.0"-->
+        <!--android:background="@drawable/ptz_focal_length_selector"-->
+        <!--android:contentDescription="@string/nothing" />-->
+
+    <!--<ImageButton-->
+        <!--android:id="@id/ptz_focus"-->
+        <!--android:layout_width="0.0dip"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:layout_weight="1.0"-->
+        <!--android:background="@drawable/ptz_focus_selector"-->
+        <!--android:contentDescription="@string/nothing" />-->
+
+    <!--<ImageButton-->
+        <!--android:id="@id/ptz_aperture"-->
+        <!--android:layout_width="0.0dip"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:layout_weight="1.0"-->
+        <!--android:background="@drawable/ptz_aperture_selector"-->
+        <!--android:contentDescription="@string/nothing" />-->
+
+    <!--<ImageButton-->
+        <!--android:id="@id/ptz_preset_point"-->
+        <!--android:layout_width="0.0dip"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:layout_weight="1.0"-->
+        <!--android:background="@drawable/ptz_preset_point_selector"-->
+        <!--android:contentDescription="@string/nothing" />-->
+</LinearLayout>

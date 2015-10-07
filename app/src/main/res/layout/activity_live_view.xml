@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent">
+
+    <RelativeLayout
+        android:id="@+id/liveview_controlbar"
+        android:layout_width="fill_parent"
+        android:layout_height="@dimen/controlbar_height"
+        android:layout_alignParentBottom="true"
+        android:background="@drawable/liveview_control_bg">
+
+        <LinearLayout
+            android:id="@+id/liveview_pageindicator_frame"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:background="@drawable/liveview_skate_bg"
+            android:gravity="center"
+            android:orientation="horizontal">
+
+            <com.mcu.iVMS.component.PageIndicatorsView
+                android:id="@+id/liveview_pageindicator"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/alarm_frame"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:background="@drawable/liveview_skate_bg"
+            android:gravity="center"
+            android:orientation="horizontal"
+            android:visibility="gone">
+
+            <include layout="@layout/alarm_frame" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/ptz_frame"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:visibility="gone">
+
+            <include layout="@layout/ptz_control_layout" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/quality_frame"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:visibility="gone">
+
+            <include layout="@layout/quality_control_layout" />
+        </LinearLayout>
+
+    </RelativeLayout>
+
+    <!--<RelativeLayout-->
+        <!--android:id="@id/liveview_liveviewgroup_container"-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:layout_above="@id/liveview_controlbar"-->
+        <!--android:layout_alignParentTop="true"-->
+        <!--android:background="@drawable/liveview_view_bg">-->
+
+        <!--<com.mcu.iVMS.component.LiveViewGroup-->
+            <!--android:id="@id/liveview_liveviewgroup"-->
+            <!--android:layout_width="fill_parent"-->
+            <!--android:layout_height="fill_parent">-->
+
+            <!--<include-->
+                <!--android:id="@id/liveview_liveitem1"-->
+                <!--layout="@layout/live_view_item" />-->
+
+            <!--<include-->
+                <!--android:id="@id/liveview_liveitem2"-->
+                <!--layout="@layout/live_view_item" />-->
+
+            <!--<include-->
+                <!--android:id="@id/liveview_liveitem3"-->
+                <!--layout="@layout/live_view_item" />-->
+
+            <!--<include-->
+                <!--android:id="@id/liveview_liveitem4"-->
+                <!--layout="@layout/live_view_item" />-->
+
+            <!--<include-->
+                <!--android:id="@id/liveview_liveitem5"-->
+                <!--layout="@layout/live_view_item" />-->
+
+            <!--<include-->
+                <!--android:id="@id/liveview_liveitem6"-->
+                <!--layout="@layout/live_view_item" />-->
+
+            <!--<include-->
+                <!--android:id="@id/liveview_liveitem7"-->
+                <!--layout="@layout/live_view_item" />-->
+
+            <!--<include-->
+                <!--android:id="@id/liveview_liveitem8"-->
+                <!--layout="@layout/live_view_item" />-->
+
+            <!--<include-->
+                <!--android:id="@id/liveview_liveitem9"-->
+                <!--layout="@layout/live_view_item" />-->
+
+            <!--<include-->
+                <!--android:id="@id/liveview_liveitem10"-->
+                <!--layout="@layout/live_view_item" />-->
+
+            <!--<include-->
+                <!--android:id="@id/liveview_liveitem11"-->
+                <!--layout="@layout/live_view_item" />-->
+
+            <!--<include-->
+                <!--android:id="@id/liveview_liveitem12"-->
+                <!--layout="@layout/live_view_item" />-->
+
+            <!--<include-->
+                <!--android:id="@id/liveview_liveitem13"-->
+                <!--layout="@layout/live_view_item" />-->
+
+            <!--<include-->
+                <!--android:id="@id/liveview_liveitem14"-->
+                <!--layout="@layout/live_view_item" />-->
+
+            <!--<include-->
+                <!--android:id="@id/liveview_liveitem15"-->
+                <!--layout="@layout/live_view_item" />-->
+
+            <!--<include-->
+                <!--android:id="@id/liveview_liveitem16"-->
+                <!--layout="@layout/live_view_item" />-->
+        <!--</com.mcu.iVMS.component.LiveViewGroup>-->
+
+        <!--<RelativeLayout-->
+            <!--android:id="@id/ptz_pop_frame"-->
+            <!--android:layout_width="fill_parent"-->
+            <!--android:layout_height="fill_parent"-->
+            <!--android:visibility="gone">-->
+
+            <!--<LinearLayout-->
+                <!--android:id="@id/ptz_pop_panel"-->
+                <!--android:layout_width="fill_parent"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:layout_alignParentBottom="true"-->
+                <!--android:layout_marginBottom="@dimen/portrait_pop_frame_bottom_margin"-->
+                <!--android:clickable="false"-->
+                <!--android:gravity="center_horizontal"-->
+                <!--android:orientation="vertical">-->
+
+                <!--<include-->
+                    <!--android:id="@id/ptz_pop_panel_content"-->
+                    <!--layout="@layout/ptz_pop_content_frame"-->
+                    <!--android:layout_gravity="center_vertical" />-->
+            <!--</LinearLayout>-->
+        <!--</RelativeLayout>-->
+
+        <!--<RelativeLayout-->
+            <!--android:id="@id/landscape_alarm_frame"-->
+            <!--android:layout_width="fill_parent"-->
+            <!--android:layout_height="fill_parent"-->
+            <!--android:visibility="gone">-->
+
+            <!--<LinearLayout-->
+                <!--android:layout_width="fill_parent"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:layout_alignParentBottom="true"-->
+                <!--android:layout_marginBottom="@dimen/landscape_pop_frame_bottom_margin"-->
+                <!--android:clickable="false"-->
+                <!--android:gravity="center_horizontal"-->
+                <!--android:orientation="vertical">-->
+
+                <!--<com.mcu.iVMS.component.AlarmScrollBar-->
+                    <!--android:id="@id/landscape_alarm_bar"-->
+                    <!--android:layout_width="wrap_content"-->
+                    <!--android:layout_height="wrap_content"-->
+                    <!--android:background="@drawable/landscape_alarmbar"-->
+                    <!--android:gravity="center_vertical"-->
+                    <!--android:orientation="horizontal" />-->
+            <!--</LinearLayout>-->
+        <!--</RelativeLayout>-->
+
+        <!--<include-->
+            <!--android:id="@id/quality_custom_pop_frame"-->
+            <!--layout="@layout/quality_custom_pop_frame" />-->
+
+        <!--<include-->
+            <!--android:id="@id/landscape_liveview_pop_frame"-->
+            <!--layout="@layout/landscape_livecontrol_frame"-->
+            <!--android:layout_width="fill_parent"-->
+            <!--android:layout_height="fill_parent" />-->
+
+        <!--<include-->
+            <!--android:id="@id/realplay_capturepic_toast_frame"-->
+            <!--layout="@layout/capture_pic_toast" />-->
+    <!--</RelativeLayout>-->
+
+    <!--<LinearLayout-->
+        <!--android:id="@id/liveview_delete_layout"-->
+        <!--android:layout_width="fill_parent"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:layout_alignParentTop="true"-->
+        <!--android:gravity="center_horizontal"-->
+        <!--android:orientation="vertical"-->
+        <!--android:visibility="invisible">-->
+
+        <!--<ImageView-->
+            <!--android:id="@id/liveview_delete_imageview"-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:background="@drawable/delete_dis" />-->
+    <!--</LinearLayout>-->
+</RelativeLayout>
