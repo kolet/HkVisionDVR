@@ -102,7 +102,13 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
             final long begin = System.currentTimeMillis();
 
             hcNetSdk = new HCNetSDK();
+
+            // Initialization of the whole network SDK, operations like memory pre-allocation.
             hcNetSdk.NET_DVR_Init();
+
+            // optional, used to set the network connection timeout of SDK.
+            // User can set this value to their own needs.
+            // You will use the default value when you don't call this interface to set timeout.
             hcNetSdk.NET_DVR_SetConnectTime(Integer.MAX_VALUE);
 
             // Most module functions of the SDK are achieved by the asynchronous mode, so we provide
@@ -120,18 +126,18 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
 
             // Log into device.
             // After registering sucessfully,the returned user ID as a unique identifier for other operations
-            NET_DVR_DEVICEINFO_V30 dvr_deviceinfo = new NET_DVR_DEVICEINFO_V30();
-            userId = hcNetSdk.NET_DVR_Login_V30(DVR_IP, DVR_PORT, "test", "q123456789", dvr_deviceinfo);
+            NET_DVR_DEVICEINFO_V30 dvrInfo = new NET_DVR_DEVICEINFO_V30();
+            userId = hcNetSdk.NET_DVR_Login_V30(DVR_IP, DVR_PORT, "test", "q123456789", dvrInfo);
 
             if (userId < 0) {
                 Log.d(TAG, "Login failed");
                 catchErrorIfNecessary();
             }
 
-            DebugTools.dump(dvr_deviceinfo);
+            DebugTools.dump(dvrInfo);
             Log.d(TAG, "Attempting to login: userId " + userId);
             Log.d(TAG, String.format("DeviceInfo: The channel began=%s, number of IP channels==%s, number of channels=%s",
-                    dvr_deviceinfo.byStartChan, dvr_deviceinfo.byIPChanNum, dvr_deviceinfo.byChanNum));
+                    dvrInfo.byStartChan, dvrInfo.byIPChanNum, dvrInfo.byChanNum));
 
             // Structure of IP device resource and IP channel resource configuration.
             NET_DVR_IPPARACFG_V40 ipParaCfg = new NET_DVR_IPPARACFG_V40();
@@ -142,6 +148,11 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                     ipParaCfg.dwAChanNum, ipParaCfg.dwDChanNum,
                     ipParaCfg.dwGroupNum, ipParaCfg.dwStartDChan));
 
+            int counter = 0;
+//	        for ( byte byt : ipParaCfg.byAnalogChanEnable ) {
+//	        	if ( CHANNEL_ENABLED == byt ) counter++;
+//	        }
+
             for (NET_DVR_IPCHANINFO entry : ipParaCfg.struIPChanInfo) {
                 if (CHANNEL_ENABLED == entry.byEnable) {
                     DebugTools.dump(entry);
@@ -149,6 +160,25 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
 
             DebugTools.dump(ipParaCfg);
             catchErrorIfNecessary();
+
+            //	        for ( NET_DVR_IPDEVINFO_V31 entry : ipParaCfg.struIPDevInfo ) {
+//
+//	        	if ( 1 == entry.byEnable ) {
+//	        		// byProType
+//	        		// Protocol type: 0- private (default), 1- Panasonic, 2- sony, get more NET_DVR_GetIPCProtoList。
+//
+//	        		//DebugTools.dump( entry );
+//
+//	        		System.out.println( "{" );
+//		        	System.out.println( "  byDomain -> " + new String( Utility.getValidByte( entry.byDomain ) ) );
+//		        	System.out.println( "  struIP.sIpV4 -> " + new String( Utility.getValidByte( entry.struIP.sIpV4 ) ) );
+//		        	System.out.println( "  sUserName -> " + new String( Utility.getValidByte( entry.sUserName ) ) );
+//		        	System.out.println( "  sPassword -> " + new String( Utility.getValidByte( entry.sPassword ) ) );
+//		        	System.out.println( "  byProType -> " + entry.byProType );
+//		        	System.out.println( "  wDVRPort -> " + entry.wDVRPort );
+//		        	System.out.println( "}" );
+//	        	}
+//	        }
 
             // Preview parameter configuration
             NET_DVR_CLIENTINFO clientInfo = new NET_DVR_CLIENTINFO();
@@ -181,9 +211,6 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
             return false;
         }
 
-        // Set the video stream
-        player.setStreamOpenMode(playPort, Player.STREAM_REALTIME);
-
         // Open the video stream
         if (!player.openStream(playPort, buffer, bufferSize, BUFFER_SIZE)) {
             player.freePort(playPort);
@@ -191,6 +218,9 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
 
             return false;
         }
+
+        // Set the video stream
+        player.setStreamOpenMode(playPort, Player.STREAM_REALTIME);
 
         // Set the playback buffer maximum buffer frames
         if (!player.setDisplayBuf(playPort, 10)) { // Frame rate, is not set to the default 15
@@ -319,6 +349,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
             //Player.getInstance().inputData( playPort, buffer, bufferSize );
         }
     };
+
     //</editor-fold>
 
     //<editor-fold desc="SurfaceHolder.Callback">
@@ -338,8 +369,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
     }
 
     @Override
-    public void surfaceChanged(SurfaceHolder holder, int format, int width,
-                               int height) {
+    public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
         System.out.println("surfaceChanged: ");
         if (holder.getSurface().isValid()) {
             if (!Player.getInstance().setVideoWindow(playPort, 0, null)) {
