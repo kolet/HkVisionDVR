@@ -1,4 +1,4 @@
-package com.example.andrei.cctv;
+package com.example.andrei.cctv.fragments;
 
 import android.app.Activity;
 import android.net.Uri;
@@ -8,15 +8,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.example.andrei.cctv.R;
 
-/**
- * A simple {@link Fragment} subclass.
- * Activities that contain this fragment must implement the
- * {@link OnDvrPlayerEventListener} interface
- * to handle interaction events.
- * Use the {@link DvrPlayerFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
 public class DvrPlayerFragment extends Fragment {
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -61,8 +54,7 @@ public class DvrPlayerFragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_dvr_player, container, false);
     }
