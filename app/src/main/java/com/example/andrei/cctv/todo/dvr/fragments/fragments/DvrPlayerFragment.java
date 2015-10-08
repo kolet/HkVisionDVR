@@ -1,4 +1,4 @@
-package com.example.andrei.cctv.fragments;
+package com.example.andrei.cctv.todo.dvr.fragments.fragments;
 
 import android.app.Activity;
 import android.net.Uri;
