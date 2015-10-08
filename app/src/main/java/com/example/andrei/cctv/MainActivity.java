@@ -40,12 +40,6 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
         dvrManager = DvrManager.getInstance();
         dvrManager.setSurfaceHolder(surfaceView.getHolder());
 
-//        dvrManager.initSDK();
-//        dvrManager.initPlayer();
-//        dvrManager.loginDevice();
-//        dvrManager.dumpUsefulInfo();
-//        dvrManager.initRealPlay();
-
         new InitializeSdkTask().execute();
     }
 

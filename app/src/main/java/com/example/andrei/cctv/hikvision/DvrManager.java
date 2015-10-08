@@ -95,29 +95,30 @@ public class DvrManager {
     /**
      * Initialization of the whole network SDK, operations like memory pre-allocation.
      */
-    public synchronized void initSDK() {
+    public synchronized boolean initSDK() {
         if (playTagID >= 0) {
             // currently playing
             stopPlayer();
         }
 
-        if (hcNetSdk.NET_DVR_Init()) {
-            Log.i(TAG, "Initialize the SDK success！");
-        } else {
-            Log.e(TAG, "Failed to initialize SDK！");
+        // used to initialize SDK.
+        if (!hcNetSdk.NET_DVR_Init()) {
+            Log.e(TAG, "Failed to initialize SDK！ Error: " + getErrorMessage());
+            return false;
         }
 
-        // optional, used to set the network connection timeout of SDK.
+        // This is optional, used to set the network connection timeout of SDK.
         // User can set this value to their own needs.
-        // You will use the default value when you don't call this interface to set timeout.
         hcNetSdk.NET_DVR_SetConnectTime(Integer.MAX_VALUE);
 
-        // Most module functions of the SDK are achieved by the asynchronous mode, so we provide
-        // this interface for receiving reception message of preview, alarm, playback, transparent
-        // channel and voice talk process.
+        // Most module functions of the SDK are achieved by the asynchronous mode, so we provide this
+        // interface for receiving reception message of preview, alarm, playback, transparent channel
+        // and voice talk process.
         // Clients can set this callback function after initializing SDK, receive process exception
         // message of each module in application layer.
         hcNetSdk.NET_DVR_SetExceptionCallBack(exceptionCallback);
+
+        return true;
     }
 
     public synchronized boolean initPlayer() {
@@ -143,7 +144,7 @@ public class DvrManager {
         userId = hcNetSdk.NET_DVR_Login_V30(DVR_IP, DVR_PORT, "test", "a123456789", dvrInfo);
 
         if (userId < 0) {
-            Log.e(TAG, "Login failed！ Error: " + checkForErrors());
+            Log.e(TAG, "Login failed！ Error: " + getErrorMessage());
             return false;
         }
 
@@ -156,7 +157,7 @@ public class DvrManager {
 
         } else {
             userId = 0;
-            Log.e(TAG, "Could not logout from the DVR！ Error: " + checkForErrors());
+            Log.e(TAG, "Could not logout from the DVR！ Error: " + getErrorMessage());
         }
 
         // Free the SDK
@@ -221,7 +222,7 @@ public class DvrManager {
         }
 
         DebugTools.dump(ipParaCfg);
-        Log.i(TAG, checkForErrors());
+        Log.i(TAG, getErrorMessage());
 
         //	        for ( NET_DVR_IPDEVINFO_V31 entry : ipParaCfg.struIPDevInfo ) {
 //
@@ -270,7 +271,7 @@ public class DvrManager {
             playTagID = hcNetSdk.NET_DVR_RealPlay_V30(userId, clientInfo, realplayCallback, true);
 
             if (playTagID < 0) {
-                Log.e(TAG, "Real time playback failure！" + checkForErrors());
+                Log.e(TAG, "Real time playback failure！" + getErrorMessage());
                 return false;
             }
 
@@ -337,11 +338,11 @@ public class DvrManager {
         if (hcNetSdk.NET_DVR_StopRealPlay(playTagID)) {
             Log.i(TAG, "Stop playing in real time successfully！");
         } else {
-            Log.e(TAG, "Stop playing real-time failure！" + checkForErrors());
+            Log.e(TAG, "Stop playing real-time failure！" + getErrorMessage());
             return;
         }
 
-        // Stop local playback
+        // stop network real-time preview.
         final Player player = Player.getInstance();
 
         if (player != null) {
@@ -371,8 +372,7 @@ public class DvrManager {
         @Override
         public void fExceptionCallBack(int code, int userId, int handle) {
             String message = String.format("ExceptionCallBack::fExceptionCallBack( 0x%h, %s, %s )", code, userId, handle);
-            Log.d(TAG, message);
-            System.out.println(message);
+            Log.e(TAG, message);
         }
     };
 
@@ -445,7 +445,7 @@ public class DvrManager {
 //                                if (i == 400) {
 //                                    Log.d(TAG, "Playing failed.");
 //                                    //Thread.sleep(10);
-//                                    System.out.println(checkForErrors());
+//                                    System.out.println(getErrorMessage());
 //                                }
 //                            }
                         }
@@ -466,7 +466,7 @@ public class DvrManager {
 
     //</editor-fold>
 
-    private String checkForErrors() {
+    private String getErrorMessage() {
         int errorCode = hcNetSdk.NET_DVR_GetLastError();
 
         if (errorCode == 0) return "";
