@@ -17,12 +17,6 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
     private SurfaceView surfaceView;
     private DvrManager dvrManager;
 
-    private static final String videoPath = "rtsp://test:q123456789@192.168.1.10:554/Streaming/Channels/102";
-
-    // IP address or static domain name of the device, the count of the characters should not more than 128
-    private static final String DVR_IP = "192.168.1.10";
-    private static final int DVR_PORT = 8000;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -36,43 +30,50 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
         surfaceView.getHolder().addCallback(this);
 
         dvrManager = DvrManager.getInstance();
-        dvrManager.setSurfaceHolder(surfaceView.getHolder());
-
-        new InitializeSdkTask().execute();
-    }
-
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-
-        dvrManager.stopPlayer();
     }
 
     @Override
-    protected void onDestroy() {
-        super.onDestroy();
+    protected void onStart() {
+        super.onStart();
+        startStreaming();
+    }
 
+    private void startStreaming() {
+        new InitializeDvrManagerTask().execute(surfaceView.getHolder());
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        stopStreaming();
+    }
+
+//    @Override
+//    protected void onDestroy() {
+//        super.onDestroy();
+//        stopStreaming();
+//    }
+
+    private void stopStreaming() {
         if (dvrManager != null) {
             dvrManager.stopPlayer();
             dvrManager.logoutDevice();
         }
     }
 
-    private class InitializeSdkTask extends AsyncTask {
+    private class InitializeDvrManagerTask extends AsyncTask<SurfaceHolder, Void, Boolean> {
 
         @Override
-        protected Object doInBackground(Object[] params) {
-            dvrManager.initSDK();
+        protected Boolean doInBackground(SurfaceHolder... params) {
+            dvrManager.initSDK(params[0]);
             dvrManager.initPlayer();
             dvrManager.loginDevice();
             dvrManager.dumpUsefulInfo();
-            //dvrManager.initRealPlay();
             return null;
         }
 
         @Override
-        protected void onPostExecute(Object noData) {
+        protected void onPostExecute(Boolean aBoolean) {
             dvrManager.initRealPlay();
         }
     }
@@ -82,19 +83,23 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
 
     @Override
     public void surfaceCreated(SurfaceHolder holder) {
-        if (holder.getSurface().isValid()) {
-            if (!Player.getInstance().setVideoWindow(dvrManager.getPlayerPort(), 0, holder.getSurface())) {
-                System.out.println("player set video window failed!");
-            }
+        if (!holder.getSurface().isValid()) return;
+
+        Player player = Player.getInstance();
+
+        if (!player.setVideoWindow(player.getPort(), 0, holder.getSurface())) {
+            System.out.println("player set video window failed!");
         }
     }
 
     @Override
     public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
-        if (holder.getSurface().isValid()) {
-            if (!Player.getInstance().getInstance().setVideoWindow(dvrManager.getPlayerPort(), 0, null)) {
-                System.out.println("player release video window failed!");
-            }
+        if (!holder.getSurface().isValid()) return;
+
+        Player player = Player.getInstance();
+
+        if (!player.setVideoWindow(player.getPort(), 0, null)) {
+            System.out.println("player release video window failed!");
         }
     }
 

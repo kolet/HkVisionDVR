@@ -1,6 +1,5 @@
 package com.example.andrei.cctv.hikvision;
 
-import android.content.Context;
 import android.util.Log;
 import android.view.SurfaceHolder;
 
@@ -29,12 +28,7 @@ public class DvrManager {
      */
     private static final int BUFFER_POOL_SIZE = 1024 * 1024 * 4;
 
-    public static final int CHANNEL_TYPE_ANALOG = 1;
-    public static final int CHANNEL_TYPE_DIGIT = 0;
-    public static final int CHANNEL_TYPE_ZERO = 3;
-
     public static final byte CHANNEL_ENABLED = 1;
-    public static final byte CHANNEL_DISABLED = 0;
 
     /**
      * Device information
@@ -42,16 +36,9 @@ public class DvrManager {
      */
     private NET_DVR_DEVICEINFO_V30 dvrInfo = null;
 
-    private Context context;
-    //private Player player;
-
     private static HCNetSDK hcNetSdk = new HCNetSDK();
 
-    /**
-     * Playing tag: -1 is not playing, playing 0
-     */
-    private int playTagID = -1;
-
+    private int playTagID = -1;  // -1 = not playing, 0 = playing video
     private int userId = -1;
 
     //<editor-fold desc="Instance">
@@ -98,7 +85,7 @@ public class DvrManager {
     /**
      * Initialization of the whole network SDK, operations like memory pre-allocation.
      */
-    public synchronized boolean initSDK() {
+    public synchronized boolean initSDK(SurfaceHolder holder) {
         if (playTagID >= 0) {
             // currently playing
             stopPlayer();
@@ -122,6 +109,7 @@ public class DvrManager {
         // message of each module in application layer.
         hcNetSdk.NET_DVR_SetExceptionCallBack(exceptionCallback);
 
+        this.surfaceHolder = holder;
         return true;
     }
 
@@ -155,10 +143,12 @@ public class DvrManager {
         return true;
     }
 
+    /**
+     * Logout the user and free SDK resources
+     */
     public void logoutDevice() {
         if (hcNetSdk.NET_DVR_Logout_V30(userId)) {
             userId = -1;
-
         } else {
             userId = 0;
             Log.e(TAG, "Could not logout from the DVR！ Error: " + getErrorMessage());
@@ -169,28 +159,149 @@ public class DvrManager {
     }
 
     private void loginDeviceRetry(int numOfRetries) throws Exception {
+        Log.e(TAG, "Trying to login again");
+
+        int count = 0;
+        while (count < numOfRetries) {
+            Log.i(TAG, "In the " + (count + 1) + " re login");
+            loginDevice();
+
+            if (userId < 0) {
+                count++;
+                Thread.sleep(200);
+            } else {
+                Log.i(TAG, "Article " + (count + 1) + " login successful");
+                break;
+            }
+        }
+
+        // Still could not login
         if (userId < 0) {
-            Log.e(TAG, "Trying to login again");
+            Log.e(TAG, "Trying to sign " + count + " times - all failed！");
+            return;
+        }
+    }
 
-            int count = 0;
-            while (count < numOfRetries) {
-                Log.i(TAG, "In the " + (count + 1) + " re login");
-                loginDevice();
-
-                if (userId < 0) {
-                    count++;
-                    Thread.sleep(200);
-                } else {
-                    Log.i(TAG, "Article " + (count + 1) + " login successful");
-                    break;
-                }
+    public synchronized boolean initRealPlay() {
+        try {
+            if (playTagID >= 0) {
+                // Stop if was playing something
+                //stopPlayer();
+                Log.d(TAG, "Now playing?");
+                return false;
             }
 
-            // Still could not login
             if (userId < 0) {
-                Log.e(TAG, "Trying to sign " + count + " times - all failed！");
+                // Make sure we are logged into the device
+                loginDeviceRetry(5);
+            }
+
+            // Preview parameter configuration
+            NET_DVR_CLIENTINFO clientInfo = new NET_DVR_CLIENTINFO();
+            //clientInfo.lChannel = channel + dvr_deviceinfo.byStartChan;
+            clientInfo.lChannel = 1;
+            clientInfo.lLinkMode = 0;
+//	    clientInfo.lLinkMode = 0x80000000;
+
+            // A multicast address, multicast preview configuration needs
+            clientInfo.sMultiCastIP = null;
+
+            playTagID = hcNetSdk.NET_DVR_RealPlay_V30(userId, clientInfo, realplayCallback, true);
+
+            if (playTagID < 0) {
+                Log.e(TAG, "Real time playback failure！" + getErrorMessage());
+                return false;
+            }
+
+        } catch (Exception e) {
+            Log.e(TAG, "Abnormal: " + e.toString());
+            e.printStackTrace();
+            return false;
+        }
+
+        return true;
+    }
+
+    public boolean startPlayer(byte[] buffer, int bufferSize) {
+        final Player player = Player.getInstance();
+
+        if (player == null) {
+            Log.e(TAG, "Player instance not initialised");
+            return false;
+        }
+
+        if (!player.setStreamOpenMode(playerPort, Player.STREAM_REALTIME)) {
+            Log.d(TAG, "The player set stream mode failed!");
+            return false;
+        }
+
+        // Open the video stream
+        if (!player.openStream(playerPort, buffer, bufferSize, BUFFER_POOL_SIZE)) {
+            player.freePort(playerPort);
+            playerPort = -1;
+            return false;
+        }
+
+        // Set the video stream
+        //player.setStreamOpenMode(playerPort, Player.STREAM_REALTIME);
+
+        // Set the playback buffer maximum buffer frames
+//        if (!player.setDisplayBuf(playerPort, 10)) { // Frame rate, is not set to the default 15
+//            Log.e(TAG, "Set the playback buffer maximum buffer frames failed！");
+//            return false;
+//        }
+
+        if (!player.play(playerPort, this.surfaceHolder.getSurface())) {
+            // Set the video flow failure
+            player.closeStream(playerPort);
+            player.freePort(playerPort);
+            playerPort = -1;
+
+            return false;
+        }
+
+        return true;
+    }
+
+    public synchronized void stopPlayer() {
+        if (playTagID < 0) {
+            Log.d(TAG, "Player has already stopped");
+            return;
+        }
+
+        userId = -1;
+
+        // Stop the broadcast networks
+        if (hcNetSdk.NET_DVR_StopRealPlay(playTagID)) {
+            Log.i(TAG, "Stop playing in real time successfully！");
+        } else {
+            Log.e(TAG, "Stop playing real-time failure！" + getErrorMessage());
+            return;
+        }
+
+        // stop visual display
+        final Player player = Player.getInstance();
+
+        if (player != null) {
+            if (!player.stop(playerPort)) {
+                Log.e(TAG, "Stop the play failed！");
                 return;
             }
+
+            // Close the video stream
+            if (!player.closeStream(playerPort)) {
+                Log.e(TAG, "Close the video flow failure！");
+                return;
+            }
+
+            // Release play port
+            if (!player.freePort(playerPort)) {
+                Log.e(TAG, "Release port failed to play！");
+                return;
+            }
+
+            playerPort = -1;
+            playTagID = -1;
         }
     }
 
@@ -199,7 +310,6 @@ public class DvrManager {
 
         if (dvrInfo != null) {
             DebugTools.dump(dvrInfo);
-
 
             deviceInfo.channelNumber = dvrInfo.byChanNum;
             deviceInfo.startChannel = dvrInfo.byStartChan;
@@ -246,128 +356,6 @@ public class DvrManager {
 //		        	System.out.println( "}" );
 //	        	}
 //	        }
-    }
-
-    public synchronized boolean initRealPlay() {
-        try {
-            if (playTagID >= 0) {
-                // Stop if was playing something
-                //stopPlayer();
-                Log.d(TAG, "Now playing?");
-                return false;
-            }
-
-            // Make sure we are logged into the device
-            loginDeviceRetry(10);
-
-            // Preview parameter configuration
-            NET_DVR_CLIENTINFO clientInfo = new NET_DVR_CLIENTINFO();
-            //clientInfo.lChannel = channel + dvr_deviceinfo.byStartChan;
-            clientInfo.lChannel = 1;
-            clientInfo.lLinkMode = 0;
-//	    clientInfo.lLinkMode = 0x80000000;
-
-            // A multicast address, multicast preview configuration needs
-            clientInfo.sMultiCastIP = null;
-
-            playTagID = hcNetSdk.NET_DVR_RealPlay_V30(userId, clientInfo, realplayCallback, true);
-
-            if (playTagID < 0) {
-                Log.e(TAG, "Real time playback failure！" + getErrorMessage());
-                return false;
-            }
-
-        } catch (Exception e) {
-            Log.e(TAG, "Abnormal: " + e.toString());
-            e.printStackTrace();
-            return false;
-        }
-
-        return true;
-    }
-
-    public boolean startPlayer(byte[] buffer, int bufferSize) {
-        final Player player = Player.getInstance();
-
-        if (player == null) {
-            Log.e(TAG, "Player instance not initialised");
-            return false;
-        }
-
-        if (!player.setStreamOpenMode(playerPort, Player.STREAM_REALTIME)) {
-            Log.d(TAG, "The player set stream mode failed!");
-            return false;
-        }
-
-        // Open the video stream
-        if (!player.openStream(playerPort, buffer, bufferSize, BUFFER_POOL_SIZE)) {
-            player.freePort(playerPort);
-            playerPort = -1;
-
-            return false;
-        }
-
-        // Set the video stream
-        player.setStreamOpenMode(playerPort, Player.STREAM_REALTIME);
-
-        // Set the playback buffer maximum buffer frames
-//        if (!player.setDisplayBuf(playerPort, 10)) { // Frame rate, is not set to the default 15
-//            Log.e(TAG, "Set the playback buffer maximum buffer frames failed！");
-//            return false;
-//        }
-
-        if (!player.play(playerPort, this.surfaceHolder.getSurface())) {
-            // Set the video flow failure
-            player.closeStream(playerPort);
-            player.freePort(playerPort);
-            playerPort = -1;
-
-            return false;
-        }
-
-        return true;
-    }
-
-    public synchronized void stopPlayer() {
-        if (playTagID < 0) {
-            Log.d(TAG, "Has stopped?");
-            return;
-        }
-
-        userId = -1;
-
-        // Stop the broadcast networks
-        if (hcNetSdk.NET_DVR_StopRealPlay(playTagID)) {
-            Log.i(TAG, "Stop playing in real time successfully！");
-        } else {
-            Log.e(TAG, "Stop playing real-time failure！" + getErrorMessage());
-            return;
-        }
-
-        // stop network real-time preview.
-        final Player player = Player.getInstance();
-
-        if (player != null) {
-            if (!player.stop(playerPort)) {
-                Log.e(TAG, "Stop the play failed！");
-                return;
-            }
-
-            // Close the video stream
-            if (!player.closeStream(playerPort)) {
-                Log.e(TAG, "Close the video flow failure！");
-                return;
-            }
-
-            // Release play port
-            if (!player.freePort(playerPort)) {
-                Log.e(TAG, "Release port failed to play！");
-                return;
-            }
-
-            playerPort = -1;
-            playTagID = -1;
-        }
     }
 
     private ExceptionCallBack exceptionCallback = new ExceptionCallBack() {
@@ -477,7 +465,7 @@ public class DvrManager {
 
         switch (errorCode) {
             case 17:
-                return "TODO";
+                return "NET_DVR_PARAMETER_ERROR: Parameter error. Input or output parameter in the SDK API is NULL.";
             case 400:
                 return "InputData failed";
             default:
