@@ -18,9 +18,11 @@ import org.MediaPlayer.PlayM4.Player;
 public class DvrManager {
     private static final String TAG = "DvrManager";
 
-    // Move this to DvrInfo
+    // Move this to DvrDeviceInfo
     private static final String DVR_IP = "192.168.1.10";
     private static final int DVR_PORT = 8000;
+
+    private static DvrDeviceInfo deviceInfo;
 
     /**
      * The size of the source buffer.
@@ -64,6 +66,7 @@ public class DvrManager {
         if (manager == null) {
             synchronized (DvrManager.class) {
                 manager = new DvrManager();
+                deviceInfo = new DvrDeviceInfo();
             }
         }
 
@@ -107,6 +110,7 @@ public class DvrManager {
             return false;
         }
 
+        // This is optional, used to set the network connection timeout of SDK.
         // This is optional, used to set the network connection timeout of SDK.
         // User can set this value to their own needs.
         hcNetSdk.NET_DVR_SetConnectTime(Integer.MAX_VALUE);
@@ -191,15 +195,15 @@ public class DvrManager {
     }
 
     public void dumpUsefulInfo() {
-        DebugTools.dump(dvrInfo);
+        if (hcNetSdk == null) return;
 
-        System.out.println("Below is the equipment information************************");
-        System.out.println("Logged user userId=" + userId);
-        System.out.println("The channel began=" + dvrInfo.byStartChan);
-        System.out.println("The number of channels=" + dvrInfo.byChanNum);
-        System.out.println("The device type=" + dvrInfo.byDVRType);
-        System.out.println("The number of IP channels=" + dvrInfo.byIPChanNum);
+        if (dvrInfo != null) {
+            DebugTools.dump(dvrInfo);
 
+
+            deviceInfo.channelNumber = dvrInfo.byChanNum;
+            deviceInfo.startChannel = dvrInfo.byStartChan;
+        }
 
         // Structure of IP device resource and IP channel resource configuration.
         NET_DVR_IPPARACFG_V40 ipParaCfg = new NET_DVR_IPPARACFG_V40();
@@ -242,8 +246,6 @@ public class DvrManager {
 //		        	System.out.println( "}" );
 //	        	}
 //	        }
-
-
     }
 
     public synchronized boolean initRealPlay() {

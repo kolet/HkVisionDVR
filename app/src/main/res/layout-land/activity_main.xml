@@ -4,13 +4,11 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".MainActivity"
-    android:background="@color/window_frame_swaped_color">
+    android:background="@color/playback_avilable_time_area">
 
     <SurfaceView
         android:id="@+id/surfaceView"
-        android:layout_width="320dp"
-        android:layout_height="240dp"
-        android:layout_centerVertical="true"
-        android:layout_centerHorizontal="true" />
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
 
 </RelativeLayout>
