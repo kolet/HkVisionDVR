@@ -30,15 +30,6 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
         surfaceView.getHolder().addCallback(this);
 
         dvrManager = DvrManager.getInstance();
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-        startStreaming();
-    }
-
-    private void startStreaming() {
         new InitializeDvrManagerTask().execute(surfaceView.getHolder());
     }
 
