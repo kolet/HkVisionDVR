@@ -14,8 +14,8 @@ import com.hikvision.netsdk.RealPlayCallBack;
 
 import org.MediaPlayer.PlayM4.Player;
 
-public class DvrManager {
-    private static final String TAG = "DvrManager";
+public class HikVisionDvrManager {
+    private static final String TAG = "HikVisionDvrManager";
 
     // Move this to DvrDeviceInfo
     private static final String DVR_IP = "192.168.1.10";
@@ -27,8 +27,6 @@ public class DvrManager {
      * The size of the source buffer.
      */
     private static final int BUFFER_POOL_SIZE = 1024 * 1024 * 4;
-
-    public static final byte CHANNEL_ENABLED = 1;
 
     /**
      * Device information
@@ -43,16 +41,16 @@ public class DvrManager {
 
     //<editor-fold desc="Instance">
 
-    private static DvrManager manager = null;
+    private static HikVisionDvrManager manager = null;
 
-    private DvrManager() {
+    private HikVisionDvrManager() {
         // allow only singletons
     }
 
-    public static synchronized DvrManager getInstance() {
+    public static synchronized HikVisionDvrManager getInstance() {
         if (manager == null) {
-            synchronized (DvrManager.class) {
-                manager = new DvrManager();
+            synchronized (HikVisionDvrManager.class) {
+                manager = new HikVisionDvrManager();
                 deviceInfo = new DvrDeviceInfo();
             }
         }
@@ -330,7 +328,7 @@ public class DvrManager {
 //	        }
 
         for (NET_DVR_IPCHANINFO entry : ipParaCfg.struIPChanInfo) {
-            if (CHANNEL_ENABLED == entry.byEnable) {
+            if (1 == entry.byEnable) {
                 DebugTools.dump(entry);
             }
         }

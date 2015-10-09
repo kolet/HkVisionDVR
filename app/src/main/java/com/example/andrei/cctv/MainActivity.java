@@ -5,8 +5,10 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
+import android.view.Window;
+import android.view.WindowManager;
 
-import com.example.andrei.cctv.hikvision.DvrManager;
+import com.example.andrei.cctv.hikvision.HikVisionDvrManager;
 
 import org.MediaPlayer.PlayM4.Player;
 
@@ -15,22 +17,37 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
     private static final String TAG = MainActivity.class.getSimpleName();
 
     private SurfaceView surfaceView;
-    private DvrManager dvrManager;
+    private HikVisionDvrManager dvrManager;
+
+    private InitializeDvrManagerTask initTask;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        //requestWindowFeature(Window.FEATURE_NO_TITLE);
-//        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_main);
 
         surfaceView = (SurfaceView) findViewById(R.id.surfaceView);
         surfaceView.getHolder().addCallback(this);
 
-        dvrManager = DvrManager.getInstance();
-        new InitializeDvrManagerTask().execute(surfaceView.getHolder());
+        initDvrManager();
+    }
+
+    private void initDvrManager() {
+        dvrManager = HikVisionDvrManager.getInstance();
+
+        if (initTask != null && !initTask.getStatus().equals(AsyncTask.Status.FINISHED)) {
+            return;
+        }
+
+        initTask = new InitializeDvrManagerTask();
+        initTask.execute(surfaceView.getHolder());
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
     }
 
     @Override
