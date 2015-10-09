@@ -7,9 +7,9 @@ public class DvrDeviceInfo {
     public String userpwd = "";
     public String describe = "";
 
-    public byte serialNumber;
+    public String serialNumber;
 
-    // number of analog channels
+    // The number of analog channels
     public byte channelNumber;
 
     // Starting number of analog channel, starts from 1
