@@ -251,7 +251,7 @@ public class DvrManager {
 //            return false;
 //        }
 
-        if (!player.play(playerPort, this.surfaceHolder.getSurface())) {
+        if (!player.play(playerPort, this.surfaceHolder)) {
             // Set the video flow failure
             player.closeStream(playerPort);
             player.freePort(playerPort);
@@ -272,9 +272,7 @@ public class DvrManager {
         userId = -1;
 
         // Stop the broadcast networks
-        if (hcNetSdk.NET_DVR_StopRealPlay(playTagID)) {
-            Log.i(TAG, "Stop playing in real time successfully！");
-        } else {
+        if (!hcNetSdk.NET_DVR_StopRealPlay(playTagID)) {
             Log.e(TAG, "Stop playing real-time failure！" + getErrorMessage());
             return;
         }

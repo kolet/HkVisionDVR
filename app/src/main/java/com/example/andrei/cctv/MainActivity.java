@@ -46,6 +46,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
     protected void onStop() {
         super.onStop();
         stopStreaming();
+        dvrManager.logoutDevice();
     }
 
 //    @Override
@@ -57,7 +58,6 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
     private void stopStreaming() {
         if (dvrManager != null) {
             dvrManager.stopPlayer();
-            dvrManager.logoutDevice();
         }
     }
 
@@ -87,7 +87,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
 
         Player player = Player.getInstance();
 
-        if (!player.setVideoWindow(player.getPort(), 0, holder.getSurface())) {
+        if (!player.setVideoWindow(player.getPort(), 0, holder)) {
             System.out.println("player set video window failed!");
         }
     }

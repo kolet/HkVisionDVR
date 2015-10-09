@@ -1,0 +1,44 @@
+package com.hikvision.netsdk;
+
+public class MINOR_EVENT_TYPE {
+    public static final int ENUM_VCA_EVENT_ADV_REACH_HEIGHT = 22;
+    public static final int ENUM_VCA_EVENT_ADV_TRAVERSE_PLANE = 25;
+    public static final int ENUM_VCA_EVENT_ANSWER = 27;
+    public static final int ENUM_VCA_EVENT_AUDIO_ABNORMAL = 21;
+    public static final int ENUM_VCA_EVENT_ENTER_AREA = 2;
+    public static final int ENUM_VCA_EVENT_EXIT_AREA = 3;
+    public static final int ENUM_VCA_EVENT_FALL_DOWN = 20;
+    public static final int ENUM_VCA_EVENT_GET_UP = 12;
+    public static final int ENUM_VCA_EVENT_HIGH_DENSITY = 9;
+    public static final int ENUM_VCA_EVENT_HUMAN_ENTER = 29;
+    public static final int ENUM_VCA_EVENT_INSTALL_SCANNER = 32;
+    public static final int ENUM_VCA_EVENT_INTRUSION = 4;
+    public static final int ENUM_VCA_EVENT_KEY_PERSON_GET_UP = 17;
+    public static final int ENUM_VCA_EVENT_LEAVE_POSITION = 15;
+    public static final int ENUM_VCA_EVENT_LECTURE = 26;
+    public static final int ENUM_VCA_EVENT_LEFT = 13;
+    public static final int ENUM_VCA_EVENT_LEFT_TAKE = 6;
+    public static final int ENUM_VCA_EVENT_LOITER = 5;
+    public static final int ENUM_VCA_EVENT_OVER_TIME = 30;
+    public static final int ENUM_VCA_EVENT_PARKING = 7;
+    public static final int ENUM_VCA_EVENT_PEOPLENUM_CHANGE = 35;
+    public static final int ENUM_VCA_EVENT_REACH_HIGHT = 11;
+    public static final int ENUM_VCA_EVENT_RUN = 8;
+    public static final int ENUM_VCA_EVENT_SPACING_CHANGE = 36;
+    public static final int ENUM_VCA_EVENT_STANDUP = 18;
+    public static final int ENUM_VCA_EVENT_STICK_UP = 31;
+    public static final int ENUM_VCA_EVENT_TAKE = 14;
+    public static final int ENUM_VCA_EVENT_TOILET_TARRY = 23;
+    public static final int ENUM_VCA_EVENT_TRAIL = 16;
+    public static final int ENUM_VCA_EVENT_TRAVERSE_PLANE = 1;
+    public static final int ENUM_VCA_EVENT_VIOLENT_MOTION = 10;
+    public static final int ENUM_VCA_EVENT_YARD_TARRY = 24;
+    public static final int EVENT_AUDIO_INPUT_ALARM = 3;
+    public static final int EVENT_FACE_DETECTION = 5;
+    public static final int EVENT_FIELD_DETECTION = 2;
+    public static final int EVENT_PIR_ALARM = 8;
+    public static final int EVENT_SCENE_CHANGE_ALARM = 7;
+    public static final int EVENT_SOUND_INTENSITY_ALARM = 4;
+    public static final int EVENT_VCA_TRAVERSE_PLANE = 1;
+    public static final int EVENT_VIRTUAL_FOCUS_ALARM = 6;
+}
