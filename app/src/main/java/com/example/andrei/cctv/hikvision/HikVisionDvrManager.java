@@ -116,7 +116,7 @@ public class HikVisionDvrManager {
 
         if (userId < 0) {
             String errorMessage = getErrorMessage();
-            Log.e(TAG, "LoginDevice() failed Error: " + errorMessage);
+            Log.e(TAG, "LoginDevice() - " + errorMessage);
             return errorMessage;
         }
 
@@ -441,7 +441,7 @@ public class HikVisionDvrManager {
 
         switch (errorCode) {
             case SDKError.NET_DVR_NETWORK_FAIL_CONNECT:
-                return "Failed to connect to the DVR. The device is off-line, or connection timeout caused by network.";
+                return "Connection Failed.\n\nThe DVR is off-line, or you are not connected to the same network.";
             case 17:
                 return "NET_DVR_PARAMETER_ERROR: Parameter error. Input or output parameter in the SDK API is NULL.";
             case 400:

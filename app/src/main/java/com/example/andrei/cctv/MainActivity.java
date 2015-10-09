@@ -5,9 +5,11 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
+import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.TextView;
 
 import com.example.andrei.cctv.hikvision.HikVisionDvrManager;
 
@@ -22,7 +24,8 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
 
     private InitializeDvrManagerTask initTask;
 
-    private Button buttonStart;
+    private TextView textErrorMessage;
+    private Button buttonStart, buttonStop;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,7 +34,9 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_main);
 
+        textErrorMessage = (TextView) findViewById(R.id.textErrorMessage);
         buttonStart = (Button) findViewById(R.id.buttonStart);
+        buttonStop = (Button) findViewById(R.id.buttonStop);
 
         surfaceView = (SurfaceView) findViewById(R.id.surfaceView);
         surfaceView.getHolder().addCallback(this);
@@ -70,7 +75,11 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
     protected void onDestroy() {
         super.onDestroy();
 
-        stopStreaming();
+        if (dvrManager != null) {
+            dvrManager.stopStreaming();
+            dvrManager.stopPlayer();
+            dvrManager.logoutDevice();
+        }
     }
 
     //    @Override
@@ -78,14 +87,6 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
 //        super.onDestroy();
 //        stopStreaming();
 //    }
-
-    private void stopStreaming() {
-        if (dvrManager != null) {
-            dvrManager.stopStreaming();
-            dvrManager.stopPlayer();
-            dvrManager.logoutDevice();
-        }
-    }
 
     private class InitializeDvrManagerTask extends AsyncTask<SurfaceHolder, Void, String> {
 
@@ -99,7 +100,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
             if (!dvrManager.initSDK())
                 return errorMessage;
 
-            if ((errorMessage = dvrManager.loginDevice())  != null) {
+            if ((errorMessage = dvrManager.loginDevice()) != null) {
                 // Login failed
                 return errorMessage;
             }
@@ -113,21 +114,20 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
         protected void onPostExecute(String result) {
             if (result.equals("OK")) {
                 dvrManager.startStreaming();
+                displayErrorMessage(null);
             } else {
                 // Show the error message
 
+                displayErrorMessage(result);
 
-                buttonStart.setEnabled(false);
 
             }
         }
     }
 
-    //<editor-fold desc="SurfaceHolder.Callback">
-
     @Override
     public void surfaceCreated(SurfaceHolder holder) {
-       // if (!holder.getSurface().isValid()) return;
+        // if (!holder.getSurface().isValid()) return;
 
         Player player = Player.getInstance();
 
@@ -138,7 +138,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
 
     @Override
     public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
-      //  if (!holder.getSurface().isValid()) return;
+        //  if (!holder.getSurface().isValid()) return;
 
         Player player = Player.getInstance();
 
@@ -152,5 +152,20 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
 
     }
 
-    //</editor-fold>
+    private void displayErrorMessage(String errorMessage) {
+        if (errorMessage == null) {
+            textErrorMessage.setVisibility(View.GONE);
+            textErrorMessage.setText("");
+
+            buttonStart.setEnabled(true);
+            buttonStop.setEnabled(true);
+
+        } else {
+            textErrorMessage.setVisibility(View.VISIBLE);
+            textErrorMessage.setText(errorMessage);
+
+            buttonStart.setEnabled(true);
+            buttonStop.setEnabled(false);
+        }
+    }
 }

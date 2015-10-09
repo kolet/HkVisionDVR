@@ -46,7 +46,7 @@
     <color name="mask_bg">#5c000000</color>
     <color name="nonacivate_text_color">#ffca2c32</color>
     <color name="playback_avilable_time_area">#ff637fec</color>
-    <color name="popup_window_button_bg">#ffebebeb</color>
+    <color name="white">#ffebebeb</color>
     <color name="possible_result_points">#c0ffff00</color>
     <color name="result_view">#b0000000</color>
     <color name="select_area_underline_color">#ffc8cacc</color>

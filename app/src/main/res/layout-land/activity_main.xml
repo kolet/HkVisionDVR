@@ -4,22 +4,43 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/window_frame_swaped_color"
-    tools:context=".MainActivity"
-    android:keepScreenOn="true">
+    android:keepScreenOn="true"
+    tools:context=".MainActivity">
 
 
-    <SurfaceView
-        android:id="@+id/surfaceView"
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_toLeftOf="@+id/layoutControlButtons" />
+        android:layout_toLeftOf="@+id/layoutControlButtons"
+        android:background="@color/playback_avilable_time_area">
+
+        <SurfaceView
+            android:id="@+id/surfaceView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
+
+        <TextView
+            android:id="@+id/textErrorMessage"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="ERROR MESSAGE"
+            android:visibility="gone"
+            android:paddingLeft="48dp"
+            android:paddingRight="48dp"
+            android:textSize="22dp"
+            android:textColor="@color/white" />
+
+
+
+    </FrameLayout>
 
     <LinearLayout
         android:id="@+id/layoutControlButtons"
         android:layout_width="80dp"
         android:layout_height="match_parent"
-        android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
         android:layout_marginLeft="12dp"
         android:layout_marginRight="12dp"
         android:gravity="center_vertical"
@@ -35,14 +56,14 @@
             android:text="Start" />
 
         <Button
-            android:id="@+id/button2"
+            android:id="@+id/buttonStop"
             android:layout_width="wrap_content"
             android:layout_height="0dp"
             android:layout_weight="1"
             android:text="Stop" />
 
         <Button
-            android:id="@+id/button"
+            android:id="@+id/buttonGoBack"
             android:layout_width="wrap_content"
             android:layout_height="0dp"
             android:layout_weight="1"
