@@ -119,15 +119,13 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                 // Show the error message
 
                 displayErrorMessage(result);
-
-
             }
         }
     }
 
     @Override
     public void surfaceCreated(SurfaceHolder holder) {
-        // if (!holder.getSurface().isValid()) return;
+       if (!holder.getSurface().isValid()) return;
 
         Player player = Player.getInstance();
 
@@ -138,7 +136,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
 
     @Override
     public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
-        //  if (!holder.getSurface().isValid()) return;
+       if (!holder.getSurface().isValid()) return;
 
         Player player = Player.getInstance();
 

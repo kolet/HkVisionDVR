@@ -167,7 +167,7 @@ public class HikVisionDvrManager {
         try {
             if (playTagID >= 0) {
                 // Stop if was playing something
-                //stopPlayer();
+                //stop();
                 Log.d(TAG, "Now playing?");
                 return false;
             }
