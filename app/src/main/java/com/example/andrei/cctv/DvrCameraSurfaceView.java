@@ -13,27 +13,23 @@ public class DvrCameraSurfaceView extends SurfaceView implements SurfaceHolder.C
 
     private static final int BUFFER_POOL_SIZE = 1024 * 1024 * 4;
 
-    private SurfaceHolder surfaceHolder = null;
+    //private SurfaceHolder surfaceHolder = null;
     private Player player = null;
-    private int playPort = -1;
-    public boolean isPlaying = false;
+    private static int playPort = -1;
+    public static boolean isPlaying = false;
 
     public DvrCameraSurfaceView(Context context) {
         super(context);
 
-        if (isInEditMode()) {
+        if (!isInEditMode()) {
             init();
         }
-    }
-
-    private void init() {
-        getHolder().addCallback(this);
     }
 
     public DvrCameraSurfaceView(Context context, AttributeSet attrs) {
         super(context, attrs);
 
-        if (isInEditMode()) {
+        if (!isInEditMode()) {
             init();
         }
     }
@@ -41,42 +37,19 @@ public class DvrCameraSurfaceView extends SurfaceView implements SurfaceHolder.C
     public DvrCameraSurfaceView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
 
-        if (isInEditMode()) {
+        if (!isInEditMode()) {
             init();
         }
     }
 
-    public void stop() {
-        try {
-            isPlaying = false;
+    private void init() {
+        getHolder().addCallback(this);
 
-            if (player != null) {
-                if (!player.stop(playPort)) {
-                    Log.e(TAG, "Stop the play failed！");
-                }
-
-                if (!player.closeStream(playPort)) {
-                    Log.e(TAG, "Close the video flow failure！");
-                }
-
-                if (!player.freePort(playPort)) {
-                    Log.e(TAG, "Release port failed to play！");
-                }
-
-                playPort = -1;
-
-                destroyDrawingCache();
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    public boolean start(byte[] buffer, int bufferSize) {
         player = Player.getInstance();
         playPort = player.getPort();
+    }
 
+    public boolean startPlayer(byte[] buffer, int bufferSize) {
         if (playPort == -1) {
             Log.d(TAG, "Play port is not ready!");
             return false;
@@ -95,19 +68,47 @@ public class DvrCameraSurfaceView extends SurfaceView implements SurfaceHolder.C
             return false;
         }
 
-        if (!player.play(playPort, this.surfaceHolder.getSurface())) {
+        if (!player.play(playPort, this.getHolder().getSurface())) {
+            stopPlayer();
+            Log.d(TAG, "Failed to play");
             // Set the video flow failure
 //            player.closeStream(playPort);
 //            player.freePort(playPort);
 //            playPort = -1;
-
-            stop();
-
             return false;
         }
 
         isPlaying = true;
         return true;
+    }
+
+    public void stopPlayer() {
+        try {
+            isPlaying = false;
+
+            if (player == null)
+                return;
+
+            if (!player.stop(playPort)) {
+                Log.e(TAG, "Stop the play failed！");
+            }
+
+            if (!player.closeStream(playPort)) {
+                Log.e(TAG, "Close the video flow failure！");
+            }
+
+            if (!player.freePort(playPort)) {
+                Log.e(TAG, "Release port failed to play！");
+            }
+
+            playPort = -1;
+            player = null;
+
+            destroyDrawingCache();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public void streamData(byte[] buffer, int bufferSize) {
@@ -121,20 +122,14 @@ public class DvrCameraSurfaceView extends SurfaceView implements SurfaceHolder.C
 
     @Override
     public void surfaceCreated(SurfaceHolder holder) {
-        holder = this.getHolder();
-
-        if (!holder.getSurface().isValid()) return;
-
-        if (!player.setVideoWindow(player.getPort(), 0, holder.getSurface())) {
+        if (!player.setVideoWindow(playPort, 0, this.getHolder().getSurface())) {
             System.out.println("player set video window failed!");
         }
     }
 
     @Override
     public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
-        if (!holder.getSurface().isValid()) return;
-
-        if (!player.setVideoWindow(player.getPort(), 0, null)) {
+        if (!player.setVideoWindow(playPort, 0, null)) {
             System.out.println("player release video window failed!");
         }
     }

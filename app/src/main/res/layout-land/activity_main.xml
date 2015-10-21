@@ -14,8 +14,8 @@
         android:layout_toLeftOf="@+id/layoutControlButtons"
         android:background="@color/playback_avilable_time_area">
 
-        <SurfaceView
-            android:id="@+id/surfaceView"
+        <com.example.andrei.cctv.DvrCameraSurfaceView
+            android:id="@+id/playerView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"/>
 
@@ -30,8 +30,6 @@
             android:paddingRight="48dp"
             android:textSize="22dp"
             android:textColor="@color/white" />
-
-
 
     </FrameLayout>
 

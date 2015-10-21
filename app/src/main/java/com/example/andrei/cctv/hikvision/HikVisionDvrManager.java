@@ -1,9 +1,9 @@
 package com.example.andrei.cctv.hikvision;
 
 import android.util.Log;
-import android.view.SurfaceHolder;
 
 import com.example.andrei.cctv.DebugTools;
+import com.example.andrei.cctv.DvrCameraSurfaceView;
 import com.hikvision.netsdk.ExceptionCallBack;
 import com.hikvision.netsdk.HCNetSDK;
 import com.hikvision.netsdk.NET_DVR_CLIENTINFO;
@@ -12,8 +12,6 @@ import com.hikvision.netsdk.NET_DVR_IPCHANINFO;
 import com.hikvision.netsdk.NET_DVR_IPPARACFG_V40;
 import com.hikvision.netsdk.RealPlayCallBack;
 import com.hikvision.netsdk.SDKError;
-
-import org.MediaPlayer.PlayM4.Player;
 
 public class HikVisionDvrManager {
     private static final String TAG = "HikVisionDvrManager";
@@ -28,12 +26,12 @@ public class HikVisionDvrManager {
 
     private static HikVisionDvrManager manager = null;
     private static HCNetSDK hcNetSdk = new HCNetSDK();
-    private static Player player;
+    //private static Player player;
 
     private int playTagID = -1;  // -1 = not playing, 0 = playing video
-    private int playPort = -1;
+    //private int playPort = -1;
     private int userId = -1;
-    public boolean isPlaying = false;
+    //public boolean isPlaying = false;
 
     //<editor-fold desc="Instance">
 
@@ -54,25 +52,32 @@ public class HikVisionDvrManager {
 
     //</editor-fold>
 
-    private SurfaceHolder surfaceHolder;
+    private DvrCameraSurfaceView playerView;
 
-    public void setSurfaceHolder(SurfaceHolder holder) {
-        this.surfaceHolder = holder;
+    public void setPlayerView(DvrCameraSurfaceView playerView) {
+        this.playerView = playerView;
     }
+
+//    private SurfaceHolder surfaceHolder;
+//
+//    public void setSurfaceHolder(SurfaceHolder holder) {
+//        this.surfaceHolder = holder;
+//    }
 
     /**
      * Initialization of the whole network SDK, operations like memory pre-allocation.
      */
-    public  boolean initSDK() {
+    public String initSDK() {
         if (playTagID >= 0) {
             // currently playing
-            stopPlayer();
+            playTagID = -1;
+            playerView.stopPlayer();
         }
 
         // used to initialize SDK.
         if (!hcNetSdk.NET_DVR_Init()) {
             Log.e(TAG, "Failed to initialize SDK！ Error: " + getErrorMessage());
-            return false;
+            return getErrorMessage();
         }
 
         // This is optional, used to set the network connection timeout of SDK.
@@ -86,20 +91,7 @@ public class HikVisionDvrManager {
         // Clients can set this callback function after initializing SDK, receive process exception
         // message of each module in application layer.
         hcNetSdk.NET_DVR_SetExceptionCallBack(exceptionCallback);
-        return true;
-    }
-
-    public synchronized boolean initPlayer() {
-        // Get player port
-        player = Player.getInstance();
-        playPort = player.getPort();
-
-        if (playPort == -1) {
-            Log.e(TAG, "Failed to get the MediaPlayer play port！");
-            return false;
-        }
-
-        return true;
+        return null;
     }
 
     /**
@@ -108,7 +100,7 @@ public class HikVisionDvrManager {
      *
      * @return
      */
-    public String loginDevice() {
+    public String login() {
         NET_DVR_DEVICEINFO_V30 dvrInfo = new NET_DVR_DEVICEINFO_V30();
 
         // TODO: Server and Login details must be stored somewhere
@@ -127,25 +119,37 @@ public class HikVisionDvrManager {
     /**
      * Logout the user and free SDK resources
      */
-    public void logoutDevice() {
-        if (hcNetSdk.NET_DVR_Logout_V30(userId)) {
-            userId = -1;
-        } else {
-            userId = 0;
-            Log.e(TAG, "Could not logout from the DVR！ Error: " + getErrorMessage());
-        }
+    public void stopStreaming() {
+        try {
+            // Free the SDK
+            if (!hcNetSdk.NET_DVR_StopRealPlay(playTagID)) {
+                Log.e(TAG, "Stop playing real-time failure！" + getErrorMessage());
+            }
 
-        // Free the SDK
-        hcNetSdk.NET_DVR_Cleanup();
+            if (!hcNetSdk.NET_DVR_Logout_V30(userId)) {
+                Log.e(TAG, "Could not logout from the DVR！ Error: " + getErrorMessage());
+            }
+
+            userId = -1;
+            playTagID = -1;
+
+            hcNetSdk.NET_DVR_Cleanup();
+
+            // Free the player view
+            playerView.stopPlayer();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
-    private void loginDeviceRetry(int numOfRetries) throws Exception {
+    private void retryLogin(int numOfRetries) throws Exception {
         Log.e(TAG, "Trying to login again");
 
         int count = 0;
         while (count < numOfRetries) {
             Log.i(TAG, "In the " + (count + 1) + " re login");
-            loginDevice();
+            login();
 
             if (userId < 0) {
                 count++;
@@ -163,18 +167,18 @@ public class HikVisionDvrManager {
         }
     }
 
-    public boolean startStreaming() {
+    public String startStreaming() {
         try {
             if (playTagID >= 0) {
                 // Stop if was playing something
-                //stop();
-                Log.d(TAG, "Now playing?");
-                return false;
+                //stopPlayer();
+                Log.d(TAG, "Already playing?");
+                return "Already playing?";
             }
 
             if (userId < 0) {
                 // Make sure we are logged into the device
-                loginDeviceRetry(5);
+                retryLogin(5);
             }
 
             // Preview parameter configuration
@@ -190,93 +194,19 @@ public class HikVisionDvrManager {
             playTagID = hcNetSdk.NET_DVR_RealPlay_V30(userId, clientInfo, realplayCallback, true);
 
             if (playTagID < 0) {
-                Log.e(TAG, "Real time playback failure！" + getErrorMessage());
-                return false;
+                String errorMessage = getErrorMessage();
+                Log.e(TAG, "Real time playback failure！" + errorMessage);
+                return errorMessage;
             }
 
         } catch (Exception e) {
             Log.e(TAG, "Abnormal: " + e.toString());
+            Log.e(TAG, getErrorMessage());
             e.printStackTrace();
-            return false;
+            return  getErrorMessage();
         }
 
-        return true;
-    }
-
-    public boolean stopStreaming() {
-        if (playTagID < 0) {
-            Log.d(TAG, "Player has already stopped");
-            return false;
-        }
-
-        isPlaying = false;
-
-        // Stop the broadcast networks
-        if (!hcNetSdk.NET_DVR_StopRealPlay(playTagID)) {
-            Log.e(TAG, "Stop playing real-time failure！" + getErrorMessage());
-            return false;
-        }
-
-        return true;
-    }
-
-    public boolean startPlayer(byte[] buffer, int bufferSize) {
-        if (!player.setStreamOpenMode(playPort, Player.STREAM_REALTIME)) {
-            Log.d(TAG, "The player set stream mode failed!");
-            return false;
-        }
-
-        // Open the video stream
-        if (!player.openStream(playPort, buffer, bufferSize, BUFFER_POOL_SIZE)) {
-            Log.d(TAG, "Failed to open video stream using Player.openStream()");
-            player.freePort(playPort);
-            playPort = -1;
-            return false;
-        }
-
-        // Set the video stream
-        //player.setStreamOpenMode(playPort, Player.STREAM_REALTIME);
-
-        // Set the playback buffer maximum buffer frames
-//        if (!player.setDisplayBuf(playPort, 10)) { // Frame rate, is not set to the default 15
-//            Log.e(TAG, "Set the playback buffer maximum buffer frames failed！");
-//            return false;
-//        }
-
-        if (!player.play(playPort, this.surfaceHolder.getSurface())) {
-            // Set the video flow failure
-            player.closeStream(playPort);
-            player.freePort(playPort);
-            playPort = -1;
-
-            return false;
-        }
-
-        isPlaying = true;
-        return true;
-    }
-
-    public void stopPlayer() {
-        if (player == null)
-            return;
-
-        if (!player.stop(playPort)) {
-            Log.e(TAG, "Stop the play failed！");
-        }
-
-        // Close the video stream
-        if (!player.closeStream(playPort)) {
-            Log.e(TAG, "Close the video flow failure！");
-        }
-
-        // Release play port
-        if (!player.freePort(playPort)) {
-            Log.e(TAG, "Release port failed to play！");
-        }
-
-        playPort = -1;
-        playTagID = -1;
-        isPlaying = false;
+        return null;
     }
 
     private void saveDeviceParameters(NET_DVR_DEVICEINFO_V30 info) {
@@ -287,15 +217,15 @@ public class HikVisionDvrManager {
         deviceInfo.channelNumber = info.byChanNum;
         deviceInfo.startChannel = info.byStartChan;
 
-        // Get device serial number
-        byte[] sbbyte = info.sSerialNumber;
-
-        String serialNumber = "";
-        for (int i = 0; i < sbbyte.length; i++) {
-            serialNumber += String.valueOf(sbbyte[i]);
-        }
-
-        deviceInfo.serialNumber = serialNumber;
+//        // Get device serial number
+//        byte[] sbbyte = info.sSerialNumber;
+//
+//        String serialNumber = "";
+//        for (int i = 0; i < sbbyte.length; i++) {
+//            serialNumber += String.valueOf(sbbyte[i]);
+//        }
+//
+//        deviceInfo.serialNumber = serialNumber;
     }
 
     public void dumpUsefulInfo() {
@@ -371,7 +301,6 @@ public class HikVisionDvrManager {
 //    };
 
     private RealPlayCallBack realplayCallback = new RealPlayCallBack() {
-
         /**
          * Video stream decoding.
          *
@@ -382,11 +311,6 @@ public class HikVisionDvrManager {
          */
         @Override
         public void fRealDataCallBack(int handle, int dataType, byte[] buffer, int bufferSize) {
-            if (playPort == -1) {
-                Log.d(TAG, "Play port is not ready!");
-                return;
-            }
-
             if (bufferSize == 0) {
                 Log.d(TAG, "Play buffer is empty, skipping...");
                 return;
@@ -395,7 +319,7 @@ public class HikVisionDvrManager {
             try {
                 switch (dataType) {
                     case HCNetSDK.NET_DVR_SYSHEAD:
-                        if (!startPlayer(buffer, bufferSize)) {
+                        if (!playerView.startPlayer(buffer, bufferSize)) {
                             Log.d(TAG, "Open player failed.");
                         }
 
@@ -404,30 +328,13 @@ public class HikVisionDvrManager {
                     case HCNetSDK.NET_DVR_STREAMDATA:
                     case HCNetSDK.NET_DVR_STD_VIDEODATA:
                     case HCNetSDK.NET_DVR_STD_AUDIODATA:
-                        if (isPlaying && player.inputData(playPort, buffer, bufferSize)) {
-                            isPlaying = true;
-                        } else {
-                            isPlaying = false;
-                            Log.d(TAG, "Playing failed: " + getErrorMessage());
-                        }
-
-//                            for (i = 0; i < 400; i++) {
-//                                if (player.inputData(playPort, buffer, bufferSize)) {
-//                                    //Log.d(TAG, "Played successfully.");
-//                                    break;
-//                                }
-//
-//                                if (i == 400) {
-//                                    Log.d(TAG, "Playing failed.");
-//                                    //Thread.sleep(10);
-//                                    System.out.println(getErrorMessage());
-//                                }
-//                            }
+                        playerView.streamData(buffer, bufferSize);
                         break;
                 }
 
             } catch (Exception ex) {
                 System.out.println(ex.getMessage());
+                Log.e(TAG,ex.getMessage());
             }
         }
     };
@@ -450,5 +357,4 @@ public class HikVisionDvrManager {
                 return "UNKNOWN ERROR";
         }
     }
-
 }

@@ -8,8 +8,8 @@
     android:keepScreenOn="true">
 
 
-    <SurfaceView
-        android:id="@+id/surfaceView"
+    <com.example.andrei.cctv.DvrCameraSurfaceView
+        android:id="@+id/playerView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_above="@+id/layoutControlButtons"
