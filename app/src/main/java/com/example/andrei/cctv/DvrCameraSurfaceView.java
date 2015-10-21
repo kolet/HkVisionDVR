@@ -122,6 +122,9 @@ public class DvrCameraSurfaceView extends SurfaceView implements SurfaceHolder.C
 
     @Override
     public void surfaceCreated(SurfaceHolder holder) {
+        // There's a short delay between the start of the activity and the initialization
+        // of the SurfaceHolder that backs the SurfaceView.  We don't want to try to
+        // send a video stream to the SurfaceView before it has initialized.
         if (!player.setVideoWindow(playPort, 0, this.getHolder().getSurface())) {
             System.out.println("player set video window failed!");
         }
