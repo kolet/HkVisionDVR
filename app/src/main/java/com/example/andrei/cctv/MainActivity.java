@@ -113,8 +113,11 @@ public class MainActivity extends Activity {
         @Override
         protected void onPostExecute(String result) {
             if (result.equals("OK")) {
-                String startedStreaming = dvrManager.startStreaming();
-                displayErrorMessage(startedStreaming);
+                if (dvrManager != null) {
+                    String startedStreaming = dvrManager.startStreaming();
+                    displayErrorMessage(startedStreaming);
+                }
+
             } else {
                 // Show the error message
                 displayErrorMessage(result);
