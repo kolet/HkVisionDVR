@@ -1,8 +1,10 @@
 package com.example.andrei.cctv;
 
 import android.app.Activity;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.TextView;
@@ -19,7 +21,10 @@ public class DvrCameraStreamingActivity extends Activity {
 
     private DvrCameraSurfaceView surfaceView;
 
+    private InitializeDvrManagerTask mTask;
+
     private TextView textCameraName;
+    private TextView textErrorMessage;
 
     private String cameraName;
     private int cameraId;
@@ -32,10 +37,40 @@ public class DvrCameraStreamingActivity extends Activity {
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_dvr_camera_streaming);
 
+        playerView = (DvrCameraSurfaceView) findViewById(R.id.player_dvr_camera);
         textCameraName = (TextView) findViewById(R.id.text_dvr_camera_name);
+        textErrorMessage = (TextView) findViewById(R.id.text_dvr_error_message);
 
         loadExtras();
     }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        initDvrManager();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+
+        releaseResources();
+    }
+
+
+    @Override
+    public void onBackPressed() {
+        releaseResources();
+    }
+
+//    @Override
+//    protected void onDestroy() {
+//        super.onDestroy();
+//
+//        if (dvrManager != null) {
+//            dvrManager.stopStreaming();
+//        }
+//    }
 
     private void loadExtras() {
         Bundle extras = getIntent().getExtras();
@@ -50,8 +85,81 @@ public class DvrCameraStreamingActivity extends Activity {
         }
     }
 
-    @Override
-    public void onBackPressed() {
+    private void initDvrManager() {
+        dvrManager = HikVisionDvrManager.getInstance();
+        dvrManager.setPlayerView(playerView);
+
+        if (mTask != null && !mTask.getStatus().equals(AsyncTask.Status.FINISHED)) {
+            return;
+        }
+
+        mTask = new InitializeDvrManagerTask();
+        mTask.execute();
+    }
+
+    private void releaseResources() {
+        // Cancel DVR SDK initialisation, if it is happening
+        if (mTask != null && !mTask.getStatus().equals(AsyncTask.Status.FINISHED)) {
+            mTask.cancel(true);
+            mTask = null;
+        }
+
+        // Release DVR SDK
+        if (dvrManager != null) {
+            dvrManager.stopStreaming();
+            dvrManager = null;
+        }
+
         finish();
+    }
+
+    private class InitializeDvrManagerTask extends AsyncTask<Void, Void, String> {
+
+        @Override
+        protected String doInBackground(Void... params) {
+            if (isCancelled()){
+                return "OK";
+            }
+
+            // Initialise Network SDK
+            String errorMessage =  dvrManager.init();
+
+            if (errorMessage != null)
+                return errorMessage;
+
+            // Log into the DVR
+            errorMessage = dvrManager.login();
+
+            if (errorMessage != null)
+                return errorMessage;
+
+            dvrManager.dumpUsefulInfo();
+            return "OK";
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+            if (result.equals("OK")) {
+                if (dvrManager != null) {
+                    String startedStreaming = dvrManager.startStreaming();
+                    displayErrorMessage(startedStreaming);
+                }
+
+            } else {
+                // Show the error message
+                displayErrorMessage(result);
+            }
+        }
+    }
+
+    private void displayErrorMessage(String errorMessage) {
+        if (errorMessage == null) {
+            textErrorMessage.setVisibility(View.GONE);
+            textErrorMessage.setText("");
+
+        } else {
+            textErrorMessage.setVisibility(View.VISIBLE);
+            textErrorMessage.setText(errorMessage);
+        }
     }
 }

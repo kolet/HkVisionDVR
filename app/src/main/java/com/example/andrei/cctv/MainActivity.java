@@ -18,7 +18,7 @@ public class MainActivity extends Activity {
     private DvrCameraSurfaceView playerView;
     private HikVisionDvrManager dvrManager;
 
-    private InitializeDvrManagerTask initTask;
+    private InitializeDvrManagerTask dvrManagerTask;
 
     private TextView textErrorMessage;
     private Button buttonStart, buttonStop;
@@ -36,26 +36,19 @@ public class MainActivity extends Activity {
 
         playerView = (DvrCameraSurfaceView) findViewById(R.id.playerView);
 
-        initDvrManager();
+        //initDvrManager();
     }
 
     private void initDvrManager() {
         dvrManager = HikVisionDvrManager.getInstance();
         dvrManager.setPlayerView(playerView);
 
-        if (initTask != null && !initTask.getStatus().equals(AsyncTask.Status.FINISHED)) {
+        if (dvrManagerTask != null && !dvrManagerTask.getStatus().equals(AsyncTask.Status.FINISHED)) {
             return;
         }
 
-        initTask = new InitializeDvrManagerTask();
-        initTask.execute();
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-
-
+        dvrManagerTask = new InitializeDvrManagerTask();
+        dvrManagerTask.execute();
     }
 
     @Override
@@ -84,18 +77,12 @@ public class MainActivity extends Activity {
         }
     }
 
-    //    @Override
-//    protected void onDestroy() {
-//        super.onDestroy();
-//        stopStreaming();
-//    }
-
     private class InitializeDvrManagerTask extends AsyncTask<Void, Void, String> {
 
         @Override
         protected String doInBackground(Void... params) {
             // Initialise Network SDK
-            String errorMessage =  dvrManager.initSDK();
+            String errorMessage =  dvrManager.init();
 
             if (errorMessage != null)
                 return errorMessage;

@@ -14,7 +14,7 @@ public class DvrCameraSurfaceView extends SurfaceView implements SurfaceHolder.C
     private static final int BUFFER_POOL_SIZE = 1024 * 1024 * 4;
 
     //private SurfaceHolder surfaceHolder = null;
-    private Player player = null;
+    //private Player player = null;
     private static int playPort = -1;
     public static boolean isPlaying = false;
 
@@ -45,8 +45,8 @@ public class DvrCameraSurfaceView extends SurfaceView implements SurfaceHolder.C
     private void init() {
         getHolder().addCallback(this);
 
-        player = Player.getInstance();
-        playPort = player.getPort();
+        //player = Player.getInstance();
+        playPort = Player.getInstance().getPort();
     }
 
     public boolean startPlayer(byte[] buffer, int bufferSize) {
@@ -55,20 +55,20 @@ public class DvrCameraSurfaceView extends SurfaceView implements SurfaceHolder.C
             return false;
         }
 
-        if (!player.setStreamOpenMode(playPort, Player.STREAM_REALTIME)) {
+        if (!Player.getInstance().setStreamOpenMode(playPort, Player.STREAM_REALTIME)) {
             Log.d(TAG, "The player set stream mode failed!");
             return false;
         }
 
         // Open the video stream
-        if (!player.openStream(playPort, buffer, bufferSize, BUFFER_POOL_SIZE)) {
+        if (!Player.getInstance().openStream(playPort, buffer, bufferSize, BUFFER_POOL_SIZE)) {
             Log.d(TAG, "Failed to open video stream using Player.openStream()");
-            player.freePort(playPort);
+            Player.getInstance().freePort(playPort);
             playPort = -1;
             return false;
         }
 
-        if (!player.play(playPort, this.getHolder().getSurface())) {
+        if (!Player.getInstance().play(playPort, this.getHolder().getSurface())) {
             stopPlayer();
             Log.d(TAG, "Failed to play");
             // Set the video flow failure
@@ -86,23 +86,19 @@ public class DvrCameraSurfaceView extends SurfaceView implements SurfaceHolder.C
         try {
             isPlaying = false;
 
-            if (player == null)
-                return;
-
-            if (!player.stop(playPort)) {
+            if (!Player.getInstance().stop(playPort)) {
                 Log.e(TAG, "Stop the play failed！");
             }
 
-            if (!player.closeStream(playPort)) {
+            if (!Player.getInstance().closeStream(playPort)) {
                 Log.e(TAG, "Close the video flow failure！");
             }
 
-            if (!player.freePort(playPort)) {
+            if (!Player.getInstance().freePort(playPort)) {
                 Log.e(TAG, "Release port failed to play！");
             }
 
             playPort = -1;
-            player = null;
 
             destroyDrawingCache();
 
@@ -112,7 +108,7 @@ public class DvrCameraSurfaceView extends SurfaceView implements SurfaceHolder.C
     }
 
     public void streamData(byte[] buffer, int bufferSize) {
-        if (isPlaying && player.inputData(playPort, buffer, bufferSize)) {
+        if (isPlaying && Player.getInstance().inputData(playPort, buffer, bufferSize)) {
             isPlaying = true;
         } else {
             isPlaying = false;
@@ -125,14 +121,14 @@ public class DvrCameraSurfaceView extends SurfaceView implements SurfaceHolder.C
         // There's a short delay between the start of the activity and the initialization
         // of the SurfaceHolder that backs the SurfaceView.  We don't want to try to
         // send a video stream to the SurfaceView before it has initialized.
-        if (!player.setVideoWindow(playPort, 0, this.getHolder().getSurface())) {
+        if (!Player.getInstance().setVideoWindow(playPort, 0, this.getHolder().getSurface())) {
             System.out.println("player set video window failed!");
         }
     }
 
     @Override
     public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
-        if (!player.setVideoWindow(playPort, 0, null)) {
+        if (!Player.getInstance().setVideoWindow(playPort, 0, null)) {
             System.out.println("player release video window failed!");
         }
     }

@@ -29,9 +29,7 @@ public class HikVisionDvrManager {
     //private static Player player;
 
     private int playTagID = -1;  // -1 = not playing, 0 = playing video
-    //private int playPort = -1;
     private int userId = -1;
-    //public boolean isPlaying = false;
 
     //<editor-fold desc="Instance">
 
@@ -67,7 +65,7 @@ public class HikVisionDvrManager {
     /**
      * Initialization of the whole network SDK, operations like memory pre-allocation.
      */
-    public String initSDK() {
+    public String init() {
         if (playTagID >= 0) {
             // currently playing
             playTagID = -1;
