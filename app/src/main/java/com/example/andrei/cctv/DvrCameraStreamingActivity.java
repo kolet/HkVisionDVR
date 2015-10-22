@@ -17,6 +17,7 @@ public class DvrCameraStreamingActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_dvr_camera_streaming);
 
+
         //Set the background color to black
         frameLayout = (FrameLayout) findViewById(R.id.main_background);
 
