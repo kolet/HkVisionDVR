@@ -80,4 +80,10 @@
     <color name="window_unselected_bg">#ff474747</color>
     <color name="common_color_red">#ffff0000</color>
 
+
+
+    <color name="whitesmoke">#F5F5F5</color>
+    <color name="darkred">#8B0000</color>
+    <color name="grey20">#333333</color>
+
 </resources>

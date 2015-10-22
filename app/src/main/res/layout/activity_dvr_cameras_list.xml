@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <GridView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/grid_dvr_camera_list"
+        android:layout_centerVertical="true"
+        android:layout_centerHorizontal="true"
+        android:horizontalSpacing="4dp"
+        android:verticalSpacing="4dp"
+        android:padding="4dp"
+        android:numColumns="2"
+        android:clipToPadding="false"
+        android:stretchMode="columnWidth"
+        android:background="@color/black"/>
+
+
+</RelativeLayout>
