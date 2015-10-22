@@ -38,6 +38,8 @@ public class DvrCamerasListActivity extends AppCompatActivity {
                 if (item.isConnected()) {
                     Intent intent = new Intent(DvrCamerasListActivity.this, DvrCameraStreamingActivity.class);
 
+                    intent.putExtra(DvrCameraStreamingActivity.EXTRA_CAMERA_ID, item.getCameraId());
+                    intent.putExtra(DvrCameraStreamingActivity.EXTRA_CAMERA_NAME, item.getName());
 
                     startActivity(intent);
 
