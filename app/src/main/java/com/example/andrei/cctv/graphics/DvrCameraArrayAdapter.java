@@ -80,6 +80,11 @@ public class DvrCameraArrayAdapter extends ArrayAdapter<DvrCamera> {
         return convertView;
     }
 
+    public void setData(ArrayList<DvrCamera> cameras) {
+        this.items = cameras;
+        notifyDataSetChanged();
+    }
+
     private static class ViewHolder {
         ImageView imageView;
         ProgressBar progressBar;

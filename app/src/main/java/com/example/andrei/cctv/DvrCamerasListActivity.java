@@ -22,7 +22,7 @@ public class DvrCamerasListActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_dvr_cameras_list);
 
-        gridView = (GridView) findViewById(R.id.grid_dvr_camera_list);
+        gridView = (GridView) findViewById(R.id.gridview_dvr_camera_list);
 
         setDummyData();
 
