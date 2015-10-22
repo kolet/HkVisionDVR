@@ -47,5 +47,6 @@
 
     <dimen name="camera_item_width">192dp</dimen>
     <dimen name="camera_item_height">220dp</dimen>
+    <dimen name="fab_margin">16dp</dimen>
 
 </resources>

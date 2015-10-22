@@ -57,7 +57,7 @@ public class DvrCameraArrayAdapter extends ArrayAdapter<DvrCamera> {
             convertView = layoutInflater.from(context).inflate(layoutResourceId, parent, false);
 
             holder = new ViewHolder();
-            holder.imageView = (ImageView) convertView.findViewById(R.id.grid_item_camera_placeholder);
+            holder.imageView = (ImageView) convertView.findViewById(R.id.grid_item_camera_view);
             holder.progressBar = (ProgressBar) convertView.findViewById(R.id.progress_camera_connection);
             holder.cameraName = (TextView) convertView.findViewById(R.id.grid_item_camera_name);
             convertView.setTag(holder);

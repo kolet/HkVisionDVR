@@ -1,11 +1,11 @@
 package com.example.andrei.cctv;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.GridView;
-import android.widget.Toast;
 
 import com.example.andrei.cctv.graphics.DvrCamera;
 import com.example.andrei.cctv.graphics.DvrCameraArrayAdapter;
@@ -34,14 +34,15 @@ public class DvrCamerasListActivity extends AppCompatActivity {
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
                 DvrCamera item = (DvrCamera) adapterView.getItemAtPosition(position);
 
-                Toast.makeText(DvrCamerasListActivity.this, "OK!", Toast.LENGTH_LONG).show();
+                // Only show the full-screen camera preview if it is connected
+                if (item.isConnected()) {
+                    Intent intent = new Intent(DvrCamerasListActivity.this, DvrCameraStreamingActivity.class);
 
-//                Intent startActivity = new Intent(AlarmLocation2.this, DetailActivity.class);
-//                startActivity.putExtra(DetailActivity.EXTRA_IMAGE, item.getFileName());
-//                startActivity.putExtra(DetailActivity.EXTRA_MIMETYPE, item.getMimeType());
-//                startActivity(startActivity);
 
-                //overridePendingTransition(R.anim.slide_activity_in_right, R.anim.slide_activity_out_right);
+                    startActivity(intent);
+
+                    //overridePendingTransition(R.anim.slide_activity_in_right, R.anim.slide_activity_out_right);
+                }
             }
         });
 

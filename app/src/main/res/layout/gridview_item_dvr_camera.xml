@@ -14,7 +14,7 @@
     </ProgressBar>
 
     <ImageView
-        android:id="@+id/grid_item_camera_placeholder"
+        android:id="@+id/grid_item_camera_view"
         android:layout_centerInParent="true"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
