@@ -2,7 +2,10 @@ package com.example.andrei.cctv;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.view.View;
+import android.widget.AdapterView;
 import android.widget.GridView;
+import android.widget.Toast;
 
 import com.example.andrei.cctv.graphics.DvrCamera;
 import com.example.andrei.cctv.graphics.DvrCameraArrayAdapter;
@@ -26,6 +29,22 @@ public class DvrCamerasListActivity extends AppCompatActivity {
         DvrCameraArrayAdapter adapter = new DvrCameraArrayAdapter(this, R.layout.gridview_item_dvr_camera, cameras);
         gridView.setAdapter(adapter);
 
+        gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
+                DvrCamera item = (DvrCamera) adapterView.getItemAtPosition(position);
+
+                Toast.makeText(DvrCamerasListActivity.this, "OK!", Toast.LENGTH_LONG).show();
+
+//                Intent startActivity = new Intent(AlarmLocation2.this, DetailActivity.class);
+//                startActivity.putExtra(DetailActivity.EXTRA_IMAGE, item.getFileName());
+//                startActivity.putExtra(DetailActivity.EXTRA_MIMETYPE, item.getMimeType());
+//                startActivity(startActivity);
+
+                //overridePendingTransition(R.anim.slide_activity_in_right, R.anim.slide_activity_out_right);
+            }
+        });
+
     }
 
     private void setDummyData() {
@@ -33,8 +52,14 @@ public class DvrCamerasListActivity extends AppCompatActivity {
 
         DvrCamera camera1 = new DvrCamera(1, "Camera 1");
         DvrCamera camera2 = new DvrCamera(2, "Camera 2");
+        DvrCamera camera3 = new DvrCamera(1, "Camera 3");
+        DvrCamera camera4 = new DvrCamera(2, "Camera 4");
+
+        camera1.setIsConnected(true);
 
         cameras.add(camera1);
         cameras.add(camera2);
+        cameras.add(camera3);
+        cameras.add(camera4);
     }
 }

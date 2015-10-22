@@ -12,6 +12,8 @@ public class DvrCamera {
      */
     private String name;
 
+    private boolean isConnected;
+
     public DvrCamera(int cameraId, String name) {
         this.cameraId = cameraId;
         this.name = name;
@@ -31,5 +33,13 @@ public class DvrCamera {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public boolean isConnected() {
+        return isConnected;
+    }
+
+    public void setIsConnected(boolean connected) {
+        this.isConnected = connected;
     }
 }

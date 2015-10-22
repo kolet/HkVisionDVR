@@ -14,10 +14,24 @@
     </ProgressBar>
 
     <ImageView
-        android:id="@+id/image_camera_placeholder"
+        android:id="@+id/grid_item_camera_placeholder"
         android:layout_centerInParent="true"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:src="@drawable/icon_video_camera_red" />
+
+    <TextView
+        android:id="@+id/grid_item_camera_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:singleLine="true"
+        android:text="CAMERA"
+        android:textColor="@color/white"
+        android:gravity="center"
+        android:paddingRight="4dp"
+        android:paddingBottom="4dp"
+        android:textSize="15sp"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true" />
 
 </RelativeLayout>
