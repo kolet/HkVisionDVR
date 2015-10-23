@@ -16,7 +16,6 @@ public class DvrCameraSurfaceView extends SurfaceView implements SurfaceHolder.C
     //private SurfaceHolder surfaceHolder = null;
     //private Player player = null;
     private int playPort = -1;
-    public boolean isPlaying = false;
 
     public DvrCameraSurfaceView(Context context) {
         super(context);
@@ -78,14 +77,11 @@ public class DvrCameraSurfaceView extends SurfaceView implements SurfaceHolder.C
             return false;
         }
 
-        isPlaying = true;
         return true;
     }
 
     public void stopPlayer() {
         try {
-            isPlaying = false;
-
             if (!Player.getInstance().stop(playPort)) {
                 Log.e(TAG, "Stop the play failed！");
             }
@@ -108,11 +104,10 @@ public class DvrCameraSurfaceView extends SurfaceView implements SurfaceHolder.C
     }
 
     public void streamData(byte[] buffer, int bufferSize) {
-        if (isPlaying && Player.getInstance().inputData(playPort, buffer, bufferSize)) {
-            isPlaying = true;
-        } else {
-            isPlaying = false;
-            Log.d(TAG, "Playing failed: " /*+ getErrorMessage()*/);
+        if (bufferSize > 0 && playPort != -1) {
+            if (!Player.getInstance().inputData(playPort, buffer, bufferSize)) {
+                Log.d(TAG, "Playing failed: " /*+ getErrorMessage()*/);
+            }
         }
     }
 

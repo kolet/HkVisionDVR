@@ -6,13 +6,13 @@
 
     <SurfaceView
         android:id="@+id/video_1_surfaceview"
-        android:layout_width="fill_parent"
+        android:layout_width="340dp"
         android:layout_height="220dp"
         android:tag="view1" />
 
     <SurfaceView
         android:id="@+id/video_2_surfaceview"
-        android:layout_width="fill_parent"
+        android:layout_width="340dp"
         android:layout_height="220dp"
         android:layout_marginTop="10dp"/>
 

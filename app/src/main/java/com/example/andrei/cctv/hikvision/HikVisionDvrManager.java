@@ -49,10 +49,14 @@ public class HikVisionDvrManager {
 
     //</editor-fold>
 
-    private DvrCameraSurfaceView playerView;
+    private DvrCameraSurfaceView playerView, playerView2;
 
     public void setPlayerView(DvrCameraSurfaceView playerView) {
         this.playerView = playerView;
+    }
+
+    public void setPlayerView2(DvrCameraSurfaceView playerView) {
+        this.playerView2 = playerView;
     }
 
 //    private SurfaceHolder surfaceHolder;
@@ -196,11 +200,28 @@ public class HikVisionDvrManager {
                 return errorMessage;
             }
 
+            // Preview parameter configuration
+            //clientInfo.lChannel = channel + dvr_deviceinfo.byStartChan;
+            clientInfo.lChannel = 2;
+            clientInfo.lLinkMode = 0;
+//	    clientInfo.lLinkMode = 0x80000000;
+
+            // A multicast address, multicast preview configuration needs
+            clientInfo.sMultiCastIP = null;
+
+            playTagID = hcNetSdk.NET_DVR_RealPlay_V30(userId, clientInfo, realplayCallback2, true);
+
+            if (playTagID < 0) {
+                String errorMessage = getErrorMessage();
+                Log.e(TAG, "Real time playback failure！" + errorMessage);
+                return errorMessage;
+            }
+
         } catch (Exception e) {
             Log.e(TAG, "Abnormal: " + e.toString());
             Log.e(TAG, getErrorMessage());
             e.printStackTrace();
-            return  getErrorMessage();
+            return getErrorMessage();
         }
 
         return null;
@@ -331,7 +352,46 @@ public class HikVisionDvrManager {
 
             } catch (Exception ex) {
                 System.out.println(ex.getMessage());
-                Log.e(TAG,ex.getMessage());
+                Log.e(TAG, ex.getMessage());
+            }
+        }
+    };
+
+    private RealPlayCallBack realplayCallback2 = new RealPlayCallBack() {
+        /**
+         * Video stream decoding.
+         *
+         * @param handle     current preview handler
+         * @param dataType   The iDataType data type
+         * @param buffer     PDataBuffer store data buffer pointer
+         * @param bufferSize IDataSize buffer size
+         */
+        @Override
+        public void fRealDataCallBack(int handle, int dataType, byte[] buffer, int bufferSize) {
+            if (bufferSize == 0) {
+                Log.d(TAG, "Play buffer is empty, skipping...");
+                return;
+            }
+
+            try {
+                switch (dataType) {
+                    case HCNetSDK.NET_DVR_SYSHEAD:
+                        if (!playerView2.startPlayer(buffer, bufferSize)) {
+                            Log.d(TAG, "Open player failed.");
+                        }
+
+                        break;
+
+                    case HCNetSDK.NET_DVR_STREAMDATA:
+                    case HCNetSDK.NET_DVR_STD_VIDEODATA:
+                    case HCNetSDK.NET_DVR_STD_AUDIODATA:
+                        playerView2.streamData(buffer, bufferSize);
+                        break;
+                }
+
+            } catch (Exception ex) {
+                System.out.println(ex.getMessage());
+                Log.e(TAG, ex.getMessage());
             }
         }
     };

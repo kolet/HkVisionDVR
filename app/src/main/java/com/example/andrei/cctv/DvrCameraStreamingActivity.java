@@ -16,10 +16,9 @@ public class DvrCameraStreamingActivity extends Activity {
     public static final String EXTRA_CAMERA_ID = "CameraID";
     public static final String EXTRA_CAMERA_NAME = "CameraName";
 
-    private DvrCameraSurfaceView playerView;
+    private DvrCameraSurfaceView playerView1,playerView2;
     private HikVisionDvrManager dvrManager;
 
-    private DvrCameraSurfaceView surfaceView;
 
     private InitializeDvrManagerTask mTask;
 
@@ -37,7 +36,9 @@ public class DvrCameraStreamingActivity extends Activity {
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_dvr_camera_streaming);
 
-        playerView = (DvrCameraSurfaceView) findViewById(R.id.player_dvr_camera);
+        playerView1 = (DvrCameraSurfaceView) findViewById(R.id.player_dvr_camera);
+        playerView2 = (DvrCameraSurfaceView) findViewById(R.id.player_dvr_camera2);
+
         textCameraName = (TextView) findViewById(R.id.text_dvr_camera_name);
         textErrorMessage = (TextView) findViewById(R.id.text_dvr_error_message);
 
@@ -86,7 +87,9 @@ public class DvrCameraStreamingActivity extends Activity {
 
     private void initStreaming() {
         dvrManager = HikVisionDvrManager.getInstance();
-        dvrManager.setPlayerView(playerView);
+        dvrManager.setPlayerView(playerView1);
+        dvrManager.setPlayerView2(playerView2);
+
 
         if (mTask != null && !mTask.getStatus().equals(AsyncTask.Status.FINISHED)) {
             return;
