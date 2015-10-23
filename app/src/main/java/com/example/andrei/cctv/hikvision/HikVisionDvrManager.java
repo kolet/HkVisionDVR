@@ -26,7 +26,6 @@ public class HikVisionDvrManager {
 
     private static HikVisionDvrManager manager = null;
     private static HCNetSDK hcNetSdk = new HCNetSDK();
-    //private static Player player;
 
     private int playTagID = -1;  // -1 = not playing, 0 = playing video
     private int userId = -1;

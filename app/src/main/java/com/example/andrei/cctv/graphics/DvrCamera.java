@@ -14,6 +14,11 @@ public class DvrCamera {
 
     private boolean isConnected;
 
+    /***
+     * Play port of the camera used by Player SDK to connect and stream to the camera.
+     */
+    private int playPort;
+
     public DvrCamera(int cameraId, String name) {
         this.cameraId = cameraId;
         this.name = name;
@@ -41,5 +46,13 @@ public class DvrCamera {
 
     public void setIsConnected(boolean connected) {
         this.isConnected = connected;
+    }
+
+    public int getPlayPort() {
+        return playPort;
+    }
+
+    public void setPlayPort(int playPort) {
+        this.playPort = playPort;
     }
 }

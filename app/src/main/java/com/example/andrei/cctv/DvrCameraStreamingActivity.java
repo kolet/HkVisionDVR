@@ -47,20 +47,19 @@ public class DvrCameraStreamingActivity extends Activity {
     @Override
     protected void onStart() {
         super.onStart();
-        initDvrManager();
+        initStreaming();
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-
-        releaseResources();
+        stopStreaming();
     }
 
 
     @Override
     public void onBackPressed() {
-        releaseResources();
+        stopStreaming();
     }
 
 //    @Override
@@ -85,7 +84,7 @@ public class DvrCameraStreamingActivity extends Activity {
         }
     }
 
-    private void initDvrManager() {
+    private void initStreaming() {
         dvrManager = HikVisionDvrManager.getInstance();
         dvrManager.setPlayerView(playerView);
 
@@ -97,7 +96,7 @@ public class DvrCameraStreamingActivity extends Activity {
         mTask.execute();
     }
 
-    private void releaseResources() {
+    private void stopStreaming() {
         // Cancel DVR SDK initialisation, if it is happening
         if (mTask != null && !mTask.getStatus().equals(AsyncTask.Status.FINISHED)) {
             mTask.cancel(true);

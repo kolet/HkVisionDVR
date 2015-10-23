@@ -15,8 +15,8 @@ public class DvrCameraSurfaceView extends SurfaceView implements SurfaceHolder.C
 
     //private SurfaceHolder surfaceHolder = null;
     //private Player player = null;
-    private static int playPort = -1;
-    public static boolean isPlaying = false;
+    private int playPort = -1;
+    public boolean isPlaying = false;
 
     public DvrCameraSurfaceView(Context context) {
         super(context);

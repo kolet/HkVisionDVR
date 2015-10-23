@@ -13,22 +13,22 @@
         android:layout_toLeftOf="@+id/layoutControlButtons"
         android:background="@color/playback_avilable_time_area">
 
-    <com.example.andrei.cctv.DvrCameraSurfaceView
-        android:id="@+id/player_dvr_camera"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        <com.example.andrei.cctv.DvrCameraSurfaceView
+            android:id="@+id/player_dvr_camera"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
 
-    <TextView
-        android:id="@+id/text_dvr_error_message"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:paddingLeft="48dp"
-        android:paddingRight="48dp"
-        android:text="ERROR MESSAGE"
-        android:textColor="@color/common_color_red"
-        android:textSize="22dp"
-        android:visibility="gone" />
+        <TextView
+            android:id="@+id/text_dvr_error_message"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:paddingLeft="48dp"
+            android:paddingRight="48dp"
+            android:text="ERROR MESSAGE"
+            android:textColor="@color/common_color_red"
+            android:textSize="22dp"
+            android:visibility="gone" />
 
     </FrameLayout>
 
@@ -36,13 +36,13 @@
         android:id="@+id/text_dvr_camera_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="true"
         android:paddingRight="16dp"
         android:paddingTop="16dp"
         android:text=""
-        tools:text="CAMERA NAME"
         android:textColor="@color/white"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentTop="true"
-        android:textSize="22dp" />
+        android:textSize="22dp"
+        tools:text="CAMERA NAME" />
 
 </RelativeLayout>
