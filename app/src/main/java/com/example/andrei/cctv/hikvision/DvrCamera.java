@@ -14,10 +14,11 @@ public class DvrCamera {
 
     private boolean isConnected;
 
+    // -1 = not playing, 0 = playing video
     private boolean isPlaying;
 
     /***
-     * Play port of the camera used by Player SDK to connect and stream to the camera.
+     * Play port of the camera used by Player SDK to connect and openPlayer to the camera.
      */
     private int playPort;
 
@@ -95,10 +96,16 @@ public class DvrCamera {
         this.showFullScreen = showFullScreen;
     }
 
-    protected void stopPlaying() {
+    public void play() {
+        if (this.cameraView != null) {
+            this.cameraView.startPlaying(cameraId, showFullScreen);
+        }
+    }
+
+    public void stop() {
         if (this.cameraView != null) {
             this.cameraView.stopPlaying();
-            this.playPort = -1;
+            this.cameraView = null;
         }
     }
 }

@@ -3,7 +3,6 @@ package com.example.andrei.cctv;
 import android.app.Activity;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.text.TextUtils;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -13,24 +12,24 @@ import com.example.andrei.cctv.hikvision.DvrCamera;
 import com.example.andrei.cctv.hikvision.DvrCameraSurfaceView;
 import com.example.andrei.cctv.hikvision.HikVisionDvrManager;
 
+import java.util.ArrayList;
+
 public class DvrCameraStreamingActivity extends Activity {
 
     public static final String EXTRA_CAMERA_ID = "CameraID";
     public static final String EXTRA_CAMERA_NAME = "CameraName";
 
-    private DvrCameraSurfaceView cameraView1, cameraView2;
+    //private DvrCameraSurfaceView cameraView1, cameraView2;
     private HikVisionDvrManager dvrManager;
-
 
     private InitializeDvrManagerTask mTask;
 
     private TextView textCameraName;
     private TextView textErrorMessage;
 
-    private DvrCamera camera1, camera2;
+    //private DvrCamera camera1, camera2;
 
-    private String cameraName;
-    private int cameraId;
+    private ArrayList<DvrCamera> cameras = new ArrayList<>();
 
 
     @Override
@@ -40,13 +39,29 @@ public class DvrCameraStreamingActivity extends Activity {
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_dvr_camera_streaming);
 
-        cameraView1 = (DvrCameraSurfaceView) findViewById(R.id.player_dvr_camera);
-        cameraView2 = (DvrCameraSurfaceView) findViewById(R.id.player_dvr_camera2);
+        initCameras();
 
         textCameraName = (TextView) findViewById(R.id.text_dvr_camera_name);
         textErrorMessage = (TextView) findViewById(R.id.text_dvr_error_message);
 
-        loadExtras();
+    }
+
+    private void initCameras() {
+        DvrCameraSurfaceView cameraView1 = (DvrCameraSurfaceView) findViewById(R.id.player_dvr_camera);
+        DvrCamera camera1 = new DvrCamera(1, "CAMERA 1");
+        camera1.setCameraView(cameraView1);
+        camera1.setShowFullScreen(false);
+        camera1.setIsConnected(true);
+
+        DvrCameraSurfaceView cameraView2 = (DvrCameraSurfaceView) findViewById(R.id.player_dvr_camera2);
+
+        DvrCamera camera2 = new DvrCamera(2, "CAMERA 2");
+        camera2.setCameraView(cameraView2);
+        camera2.setShowFullScreen(false);
+        camera2.setIsConnected(false);
+
+        cameras.add(camera1);
+        cameras.add(camera2);
     }
 
     @Override
@@ -58,7 +73,7 @@ public class DvrCameraStreamingActivity extends Activity {
     @Override
     protected void onStop() {
         super.onStop();
-        stopStreaming();
+       // stopStreaming();
     }
 
 
@@ -67,34 +82,8 @@ public class DvrCameraStreamingActivity extends Activity {
         stopStreaming();
     }
 
-//    @Override
-//    protected void onDestroy() {
-//        super.onDestroy();
-//
-//        if (dvrManager != null) {
-//            dvrManager.stopStreaming();
-//        }
-//    }
-
-    private void loadExtras() {
-        Bundle extras = getIntent().getExtras();
-
-        if (extras != null) {
-            cameraId = extras.getInt(EXTRA_CAMERA_ID);
-
-            cameraName = extras.getString(EXTRA_CAMERA_NAME);
-            if (!TextUtils.isEmpty(cameraName)) {
-                textCameraName.setText(cameraName);
-            }
-        }
-    }
-
     private void initStreaming() {
         dvrManager = HikVisionDvrManager.getInstance();
-
-      //  dvrManager.setPlayerView(cameraView1);
-        //dvrManager.setPlayerView2(cameraView2);
-
 
         if (mTask != null && !mTask.getStatus().equals(AsyncTask.Status.FINISHED)) {
             return;
@@ -113,7 +102,16 @@ public class DvrCameraStreamingActivity extends Activity {
 
         // Release DVR SDK
         if (dvrManager != null) {
-            dvrManager.stopStreaming();
+            if (cameras.size() > 0) {
+                // we could stop streaming
+                dvrManager.stopStreaming(cameras.get(0).getPlayPort());
+
+                for (DvrCamera camera: cameras) {
+                    camera.stop();
+                    camera = null;
+                }
+            }
+
             dvrManager = null;
         }
 
@@ -146,33 +144,14 @@ public class DvrCameraStreamingActivity extends Activity {
 
         @Override
         protected void onPostExecute(String result) {
-            if (result.equals("OK")) {
-                if (dvrManager != null) {
-                    addCameras();
-//                    String startedStreaming = dvrManager.startStreaming();
-//                    displayErrorMessage(startedStreaming);
-                }
-
-            } else {
-                // Show the error message
+            if (!result.equals("OK")) {
                 displayErrorMessage(result);
+                return;
             }
-        }
 
-        private void addCameras() {
-            camera1 = new DvrCamera(1, "CAMERA 1");
-            camera1.setCameraView(cameraView1);
-            camera1.setShowFullScreen(false);
-            camera1.setIsConnected(true);
-
-            dvrManager.addCamera(camera1);
-            String startedStreaming = dvrManager.startStreaming(camera1);
-
-            camera2 = new DvrCamera(2, "CAMERA 2");
-            camera2.setCameraView(cameraView2);
-
-            dvrManager.addCamera(camera2);
-            dvrManager.startStreaming(camera2);
+            for (DvrCamera camera : cameras) {
+                camera.play();
+            }
         }
     }
 

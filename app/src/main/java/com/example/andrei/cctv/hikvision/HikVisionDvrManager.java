@@ -5,13 +5,9 @@ import android.util.Log;
 import com.example.andrei.cctv.DebugTools;
 import com.hikvision.netsdk.ExceptionCallBack;
 import com.hikvision.netsdk.HCNetSDK;
-import com.hikvision.netsdk.NET_DVR_CLIENTINFO;
 import com.hikvision.netsdk.NET_DVR_DEVICEINFO_V30;
 import com.hikvision.netsdk.NET_DVR_IPPARACFG_V40;
-import com.hikvision.netsdk.RealPlayCallBack;
 import com.hikvision.netsdk.SDKError;
-
-import java.util.ArrayList;
 
 public class HikVisionDvrManager {
     private static final String TAG = "HikVisionDvrManager";
@@ -27,7 +23,7 @@ public class HikVisionDvrManager {
     private static HikVisionDvrManager manager = null;
     private static HCNetSDK hcNetSdk = new HCNetSDK();
 
-    private int playTagID = -1;  // -1 = not playing, 0 = playing video
+    //private int playTagID = -1;  // -1 = not playing, 0 = playing video
     private int userId = -1;
 
     //<editor-fold desc="Instance">
@@ -49,47 +45,16 @@ public class HikVisionDvrManager {
 
     //</editor-fold>
 
-    //private DvrCameraSurfaceView playerView, playerView2;
-    private ArrayList<DvrCamera> cameras = new ArrayList<>();
-    private ArrayList<DvrCameraSurfaceView> cameraViews = new ArrayList<>();
-    private int currentCamera = 0;
-
-    public void addCamera(DvrCamera camera) {
-        cameras.add(camera);
-        cameraViews.add(camera.getCameraView());
-   }
-//
-//    public void setPlayerView(DvrCameraSurfaceView playerView, int cameraId) {
-//        cameraViews.set(cameraId, playerView);
-//    }
-
-//    public void setPlayerView2(DvrCameraSurfaceView playerView) {
-//        this.playerView2 = playerView;
-//    }
-
-//    private SurfaceHolder surfaceHolder;
-//
-//    public void setSurfaceHolder(SurfaceHolder holder) {
-//        this.surfaceHolder = holder;
-//    }
-
     /**
      * Initialization of the whole network SDK, operations like memory pre-allocation.
      */
     public String init() {
-//        if (playTagID >= 0) {
-//            // currently playing
-//            playTagID = -1;
-//            playerView.stopPlaying();
-//        }
-
-        // used to initialize SDK.
+        // initialize SDK
         if (!hcNetSdk.NET_DVR_Init()) {
             Log.e(TAG, "Failed to initialize SDK！ Error: " + getErrorMessage());
             return getErrorMessage();
         }
 
-        // This is optional, used to set the network connection timeout of SDK.
         // This is optional, used to set the network connection timeout of SDK.
         // User can set this value to their own needs.
         hcNetSdk.NET_DVR_SetConnectTime(Integer.MAX_VALUE);
@@ -111,22 +76,30 @@ public class HikVisionDvrManager {
      */
     public String login() {
         NET_DVR_DEVICEINFO_V30 dvrInfo = new NET_DVR_DEVICEINFO_V30();
+        String errorMessage = null;
 
         // TODO: Server and Login details must be stored somewhere
         userId = hcNetSdk.NET_DVR_Login_V30(DVR_IP, DVR_PORT, "test", "a123456789", dvrInfo);
 
         if (userId < 0) {
-            String errorMessage = getErrorMessage();
-            Log.e(TAG, "LoginDevice() - " + errorMessage);
-            return errorMessage;
+            try {
+                if(retryLogin(5) == false) {
+                    errorMessage = "could not login into the DVR after multiple retries";
+                }
+
+            } catch (Exception e) {
+                e.printStackTrace();
+                errorMessage = getErrorMessage();
+            }
+        } else {
+            // we logged in successfully
+            saveDeviceParameters(dvrInfo);
         }
 
-        saveDeviceParameters(dvrInfo);
-        return null;
+        return errorMessage;
     }
 
-
-    private void retryLogin(int numOfRetries) throws Exception {
+    private boolean retryLogin(int numOfRetries) throws Exception {
         Log.e(TAG, "Trying to login again");
 
         int count = 0;
@@ -146,93 +119,27 @@ public class HikVisionDvrManager {
         // Still could not login
         if (userId < 0) {
             Log.e(TAG, "Trying to sign " + count + " times - all failed！");
-            return;
-        }
-    }
-
-    public String startStreaming(DvrCamera camera) {
-        try {
-//            if (playTagID >= 0) {
-//                // Stop if was playing something
-//                //stopPlaying();
-//                Log.d(TAG, "Already playing?");
-//                return "Already playing?";
-//            }
-
-            if (userId < 0) {
-                // Make sure we are logged into the device
-                retryLogin(5);
-            }
-
-            // Preview parameter configuration
-            NET_DVR_CLIENTINFO clientInfo = new NET_DVR_CLIENTINFO();
-            //clientInfo.lChannel = channel + dvr_deviceinfo.byStartChan;
-            currentCamera = camera.getCameraId();
-            clientInfo.lChannel = currentCamera;
-
-            clientInfo.lLinkMode = camera.showFullScreen() ? 0 : 0x80000000;
-//	    clientInfo.lLinkMode = 0x80000000;
-
-            // A multicast address, multicast preview configuration needs
-            clientInfo.sMultiCastIP = null;
-
-            playTagID = hcNetSdk.NET_DVR_RealPlay_V30(userId, clientInfo, realplayCallback, true);
-
-            if (playTagID < 0) {
-                String errorMessage = getErrorMessage();
-                Log.e(TAG, "Real time playback failure！" + errorMessage);
-                return errorMessage;
-            }
-
-        } catch (Exception e) {
-            Log.e(TAG, "Abnormal: " + e.toString());
-            Log.e(TAG, getErrorMessage());
-            e.printStackTrace();
-            return getErrorMessage();
+            return false;
         }
 
-        return null;
+        return true;
     }
 
     /**
-     * Logout the user and free SDK resources
+     * Stop streaming data to the specific play port
      */
-    public void stopStreaming() {
+    public void stopStreaming(int playPort) {
         try {
             // Free the SDK
-            if (playTagID != -1 && !hcNetSdk.NET_DVR_StopRealPlay(playTagID)) {
-                Log.e(TAG, "Stop playing real-time failure！" + getErrorMessage());
-            }
-
-            if (!hcNetSdk.NET_DVR_Logout_V30(userId)) {
-                Log.e(TAG, "Could not logout from the DVR！ Error: " + getErrorMessage());
-            }
+            hcNetSdk.NET_DVR_StopRealPlay(playPort);
+            hcNetSdk.NET_DVR_Logout_V30(userId);
 
             userId = -1;
-            playTagID = -1;
 
             hcNetSdk.NET_DVR_Cleanup();
 
-            // Free the player view
-            //playerView.stopPlaying();
-
         } catch (Exception e) {
             e.printStackTrace();
-        }
-    }
-
-    public void stopCamera(DvrCamera camera) {
-        if (cameras == null || cameras.size() == 0) {
-            return;
-        }
-
-        // Stop playing and free the camera view
-        int cameraId = camera.getCameraId() - 1;
-        DvrCamera dvrCamera = cameras.get(cameraId);
-
-        if (dvrCamera != null) {
-            dvrCamera.stopPlaying();
-            cameras.remove(cameraId);
         }
     }
 
@@ -327,60 +234,62 @@ public class HikVisionDvrManager {
 //        }
 //    };
 
-    private RealPlayCallBack realplayCallback = new RealPlayCallBack() {
-        /**
-         * Video stream decoding.
-         *
-         * @param handle     current preview handler
-         * @param dataType   The iDataType data type
-         * @param buffer     PDataBuffer store data buffer pointer
-         * @param bufferSize IDataSize buffer size
-         */
-        @Override
-        public void fRealDataCallBack(int handle, int dataType, byte[] buffer, int bufferSize) {
-            if (bufferSize == 0) {
-                Log.d(TAG, "Play buffer is empty, skipping...");
-                return;
-            }
+//    private RealPlayCallBack realplayCallback = new RealPlayCallBack() {
+//        /**
+//         * Video openPlayer decoding.
+//         *
+//         * @param handle     current preview handler
+//         * @param dataType   The iDataType data type
+//         * @param buffer     PDataBuffer store data buffer pointer
+//         * @param bufferSize IDataSize buffer size
+//         */
+//        @Override
+//        public void fRealDataCallBack(int handle, int dataType, byte[] buffer, int bufferSize) {
+//            if (bufferSize == 0) {
+//                Log.d(TAG, "Play buffer is empty, skipping...");
+//                return;
+//            }
+//
+//            if (cameras == null || cameras.size() == 0) {
+//                // No available cameras
+//                return;
+//            }
+//
+//            DvrCamera cam = cameras.get(currentCamera - 1);
+//
+//            if (cam == null) {
+//                return;
+//            }
+//
+//            DvrCameraSurfaceView playerView = cam.getCameraView();
+//
+//            try {
+//                switch (dataType) {
+//                    case HCNetSDK.NET_DVR_SYSHEAD:
+//
+//                        if (!playerView.openPlayer(buffer, bufferSize)) {
+//                            Log.d(TAG, "Open player failed.");
+//                        }
+//
+//                        break;
+//
+//                    case HCNetSDK.NET_DVR_STREAMDATA:
+//                    case HCNetSDK.NET_DVR_STD_VIDEODATA:
+//                    case HCNetSDK.NET_DVR_STD_AUDIODATA:
+//                        playerView.streamData(buffer, bufferSize);
+//                        break;
+//                }
+//
+//            } catch (Exception ex) {
+//                System.out.println(ex.getMessage());
+//                Log.e(TAG, ex.getMessage());
+//            }
+//        }
+//    };
 
-            if (cameras == null || cameras.size() == 0) {
-                // No available cameras
-                return;
-            }
-
-            DvrCamera cam = cameras.get(currentCamera - 1);
-
-            if (cam == null) {
-                return;
-            }
-
-            DvrCameraSurfaceView playerView = cam.getCameraView();
-
-            try {
-                switch (dataType) {
-                    case HCNetSDK.NET_DVR_SYSHEAD:
-
-                        if (!playerView.startPlaying(buffer, bufferSize)) {
-                            Log.d(TAG, "Open player failed.");
-                        }
-
-                        break;
-
-                    case HCNetSDK.NET_DVR_STREAMDATA:
-                    case HCNetSDK.NET_DVR_STD_VIDEODATA:
-                    case HCNetSDK.NET_DVR_STD_AUDIODATA:
-                        playerView.streamData(buffer, bufferSize);
-                        break;
-                }
-
-            } catch (Exception ex) {
-                System.out.println(ex.getMessage());
-                Log.e(TAG, ex.getMessage());
-            }
-        }
-    };
-
-
+    public int getUserId() {
+        return this.userId;
+    }
 
     private String getErrorMessage() {
         int errorCode = hcNetSdk.NET_DVR_GetLastError();
@@ -400,6 +309,4 @@ public class HikVisionDvrManager {
                 return "UNKNOWN ERROR";
         }
     }
-
-
 }

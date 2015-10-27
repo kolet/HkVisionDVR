@@ -79,7 +79,7 @@ public class DvrCameraFullScreenPreview extends AppCompatActivity {
         camera.setShowFullScreen(true);
         camera.setIsConnected(true);
 
-        dvrManager.addCamera(camera);
+        //dvrManager.addCamera(camera);
 
 
         if (mTask != null && !mTask.getStatus().equals(AsyncTask.Status.FINISHED)) {
@@ -99,8 +99,8 @@ public class DvrCameraFullScreenPreview extends AppCompatActivity {
 
         // Release DVR SDK
         if (dvrManager != null) {
-            dvrManager.stopCamera(camera);
-            dvrManager.stopStreaming();
+            //dvrManager.stopCamera(camera);
+           // dvrManager.stopStreaming();
             dvrManager = null;
         }
 
@@ -135,8 +135,8 @@ public class DvrCameraFullScreenPreview extends AppCompatActivity {
         protected void onPostExecute(String result) {
             if (result.equals("OK")) {
                 if (dvrManager != null) {
-                    String startedStreaming = dvrManager.startStreaming(camera);
-                    displayErrorMessage(startedStreaming);
+//                    String startedStreaming = dvrManager.startStreamingV2(camera);
+//                    displayErrorMessage(startedStreaming);
                 }
 
             } else {
