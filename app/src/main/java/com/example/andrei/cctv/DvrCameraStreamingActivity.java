@@ -2,11 +2,16 @@ package com.example.andrei.cctv;
 
 import android.app.Activity;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
-import android.view.View;
+import android.util.DisplayMetrics;
+import android.view.Display;
+import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
-import android.widget.TextView;
+import android.widget.FrameLayout;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 
 import com.example.andrei.cctv.hikvision.DvrCamera;
 import com.example.andrei.cctv.hikvision.DvrCameraSurfaceView;
@@ -19,17 +24,17 @@ public class DvrCameraStreamingActivity extends Activity {
     public static final String EXTRA_CAMERA_ID = "CameraID";
     public static final String EXTRA_CAMERA_NAME = "CameraName";
 
-    //private DvrCameraSurfaceView cameraView1, cameraView2;
     private HikVisionDvrManager dvrManager;
-
     private InitializeDvrManagerTask mTask;
 
-    private TextView textCameraName;
-    private TextView textErrorMessage;
+    //private TextView textErrorMessage;
 
-    //private DvrCamera camera1, camera2;
+    private LinearLayout parentLayout;
 
     private ArrayList<DvrCamera> cameras = new ArrayList<>();
+    private final int CAMERAS_NUMBER = 4;
+
+    private ArrayList<DvrCameraSurfaceView> surfaceViews = new ArrayList<>();
 
 
     @Override
@@ -39,29 +44,66 @@ public class DvrCameraStreamingActivity extends Activity {
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_dvr_camera_streaming);
 
+        //textErrorMessage = (TextView) findViewById(R.id.text_dvr_error_message);
+        parentLayout = (LinearLayout) findViewById(R.id.layout_dvr_camera_list);
+
         initCameras();
-
-        textCameraName = (TextView) findViewById(R.id.text_dvr_camera_name);
-        textErrorMessage = (TextView) findViewById(R.id.text_dvr_error_message);
-
     }
 
     private void initCameras() {
-        DvrCameraSurfaceView cameraView1 = (DvrCameraSurfaceView) findViewById(R.id.player_dvr_camera);
-        DvrCamera camera1 = new DvrCamera(1, "CAMERA 1");
-        camera1.setCameraView(cameraView1);
-        camera1.setShowFullScreen(false);
-        camera1.setIsConnected(true);
+        Display display = getWindowManager().getDefaultDisplay();
+        DisplayMetrics outMetrics = new DisplayMetrics();
 
-        DvrCameraSurfaceView cameraView2 = (DvrCameraSurfaceView) findViewById(R.id.player_dvr_camera2);
+        if (Build.VERSION.SDK_INT >= 17) {
+            display.getRealMetrics(outMetrics);
+        } else {
+            display.getMetrics(outMetrics);
+        }
 
-        DvrCamera camera2 = new DvrCamera(2, "CAMERA 2");
-        camera2.setCameraView(cameraView2);
-        camera2.setShowFullScreen(false);
-        camera2.setIsConnected(false);
+        for (int i = 1; i <= CAMERAS_NUMBER; i++) {
+            FrameLayout childLayout = new FrameLayout(this);
+            FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(320, 200);
+            params.setMargins(8, 8, 8, 8);
 
-        cameras.add(camera1);
-        cameras.add(camera2);
+            childLayout.setLayoutParams(params);
+
+            DvrCameraSurfaceView cameraView = new DvrCameraSurfaceView(this);
+            RelativeLayout.LayoutParams cameraViewParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+            cameraView.setLayoutParams(cameraViewParams);
+            childLayout.addView(cameraView);
+//
+            DvrCamera camera = new DvrCamera(i, "CAMERA " + i);
+            camera.setCameraView(cameraView);
+            camera.setShowFullScreen(false);
+            camera.setIsConnected(true);
+
+            cameras.add(camera);
+
+
+//            <com.example.andrei.cctv.hikvision.DvrCameraSurfaceView
+//            android:id="@+id/player_dvr_camera2"
+//            android:layout_width="match_parent"
+//            android:layout_height="match_parent" />
+
+
+            parentLayout.addView(childLayout);
+        }
+
+//        DvrCameraSurfaceView cameraView1 = (DvrCameraSurfaceView) findViewById(R.id.player_dvr_camera);
+//        DvrCamera camera1 = new DvrCamera(1, "CAMERA 1");
+//        camera1.setCameraView(cameraView1);
+//        camera1.setShowFullScreen(false);
+//        camera1.setIsConnected(true);
+//
+//        DvrCameraSurfaceView cameraView2 = (DvrCameraSurfaceView) findViewById(R.id.player_dvr_camera2);
+//
+//        DvrCamera camera2 = new DvrCamera(2, "CAMERA 2");
+//        camera2.setCameraView(cameraView2);
+//        camera2.setShowFullScreen(false);
+//        camera2.setIsConnected(false);
+//
+//        cameras.add(camera1);
+//        cameras.add(camera2);
     }
 
     @Override
@@ -73,7 +115,7 @@ public class DvrCameraStreamingActivity extends Activity {
     @Override
     protected void onStop() {
         super.onStop();
-       // stopStreaming();
+        // stopStreaming();
     }
 
 
@@ -106,7 +148,7 @@ public class DvrCameraStreamingActivity extends Activity {
                 // we could stop streaming
                 dvrManager.stopStreaming(cameras.get(0).getPlayPort());
 
-                for (DvrCamera camera: cameras) {
+                for (DvrCamera camera : cameras) {
                     camera.stop();
                     camera = null;
                 }
@@ -122,12 +164,12 @@ public class DvrCameraStreamingActivity extends Activity {
 
         @Override
         protected String doInBackground(Void... params) {
-            if (isCancelled()){
+            if (isCancelled()) {
                 return "OK";
             }
 
             // Initialise Network SDK
-            String errorMessage =  dvrManager.init();
+            String errorMessage = dvrManager.init();
 
             if (errorMessage != null)
                 return errorMessage;
@@ -156,13 +198,13 @@ public class DvrCameraStreamingActivity extends Activity {
     }
 
     private void displayErrorMessage(String errorMessage) {
-        if (errorMessage == null) {
-            textErrorMessage.setVisibility(View.GONE);
-            textErrorMessage.setText("");
-
-        } else {
-            textErrorMessage.setVisibility(View.VISIBLE);
-            textErrorMessage.setText(errorMessage);
-        }
+//        if (errorMessage == null) {
+//            textErrorMessage.setVisibility(View.GONE);
+//            textErrorMessage.setText("");
+//
+//        } else {
+//            textErrorMessage.setVisibility(View.VISIBLE);
+//            textErrorMessage.setText(errorMessage);
+//        }
     }
 }
