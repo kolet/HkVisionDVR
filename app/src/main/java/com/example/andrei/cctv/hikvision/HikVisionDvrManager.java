@@ -186,7 +186,7 @@ public class HikVisionDvrManager {
             NET_DVR_CLIENTINFO clientInfo = new NET_DVR_CLIENTINFO();
             //clientInfo.lChannel = channel + dvr_deviceinfo.byStartChan;
             clientInfo.lChannel = 1;
-            clientInfo.lLinkMode = 0;
+            clientInfo.lLinkMode = 0x80000000;
 //	    clientInfo.lLinkMode = 0x80000000;
 
             // A multicast address, multicast preview configuration needs
