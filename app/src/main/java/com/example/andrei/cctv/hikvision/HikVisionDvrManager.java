@@ -50,6 +50,7 @@ public class HikVisionDvrManager {
     //</editor-fold>
 
     private DvrCameraSurfaceView playerView, playerView2;
+    private DvrCameraSurfaceView[] players;
 
     public void setPlayerView(DvrCameraSurfaceView playerView) {
         this.playerView = playerView;

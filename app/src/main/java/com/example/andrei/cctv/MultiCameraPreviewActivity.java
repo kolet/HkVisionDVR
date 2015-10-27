@@ -1,7 +1,7 @@
 package com.example.andrei.cctv;
 
+import android.app.Activity;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -14,7 +14,7 @@ import com.hikvision.netsdk.RealPlayCallBack;
 
 import org.MediaPlayer.PlayM4.Player;
 
-public class MultiCameraPreviewActivity extends AppCompatActivity implements SurfaceHolder.Callback {
+public class MultiCameraPreviewActivity extends Activity implements SurfaceHolder.Callback {
 
     private static final String TAG = "asdasdas";
     private static final int[] SURFACE_RES_IDS = {R.id.video_1_surfaceview, R.id.video_2_surfaceview};
