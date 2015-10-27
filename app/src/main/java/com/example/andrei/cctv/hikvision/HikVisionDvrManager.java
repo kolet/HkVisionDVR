@@ -52,14 +52,11 @@ public class HikVisionDvrManager {
     //private DvrCameraSurfaceView playerView, playerView2;
     private ArrayList<DvrCamera> cameras = new ArrayList<>();
     private ArrayList<DvrCameraSurfaceView> cameraViews = new ArrayList<>();
-    int numberOfCameras = 0, currentCamera = 0;
+    private int currentCamera = 0;
 
     public void addCamera(DvrCamera camera) {
         cameras.add(camera);
         cameraViews.add(camera.getCameraView());
-        //setPlayerView(camera.getCameraView(), camera.getCameraId());
-
-        numberOfCameras++;
    }
 //
 //    public void setPlayerView(DvrCameraSurfaceView playerView, int cameraId) {
@@ -155,12 +152,12 @@ public class HikVisionDvrManager {
 
     public String startStreaming(DvrCamera camera) {
         try {
-            if (playTagID >= 0) {
-                // Stop if was playing something
-                //stopPlaying();
-                Log.d(TAG, "Already playing?");
-                return "Already playing?";
-            }
+//            if (playTagID >= 0) {
+//                // Stop if was playing something
+//                //stopPlaying();
+//                Log.d(TAG, "Already playing?");
+//                return "Already playing?";
+//            }
 
             if (userId < 0) {
                 // Make sure we are logged into the device
@@ -203,7 +200,7 @@ public class HikVisionDvrManager {
     public void stopStreaming() {
         try {
             // Free the SDK
-            if (!hcNetSdk.NET_DVR_StopRealPlay(playTagID)) {
+            if (playTagID != -1 && !hcNetSdk.NET_DVR_StopRealPlay(playTagID)) {
                 Log.e(TAG, "Stop playing real-time failure！" + getErrorMessage());
             }
 
@@ -345,7 +342,7 @@ public class HikVisionDvrManager {
                 Log.d(TAG, "Play buffer is empty, skipping...");
                 return;
             }
-            System.out.println("################### Handle is " + handle);
+
             if (cameras == null || cameras.size() == 0) {
                 // No available cameras
                 return;

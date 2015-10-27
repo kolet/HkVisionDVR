@@ -105,7 +105,6 @@ public class DvrCameraSurfaceView extends SurfaceView implements SurfaceHolder.C
 
     public void streamData(byte[] buffer, int bufferSize) {
         if (playPort < 0 || bufferSize <= 0) {
-            System.out.println("skipping");
             return;
         }
 
