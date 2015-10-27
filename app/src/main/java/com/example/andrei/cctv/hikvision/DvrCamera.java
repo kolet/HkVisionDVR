@@ -14,10 +14,25 @@ public class DvrCamera {
 
     private boolean isConnected;
 
+    private boolean isPlaying;
+
     /***
      * Play port of the camera used by Player SDK to connect and stream to the camera.
      */
     private int playPort;
+
+    /**
+     * Surface on which the camera is displayed
+     */
+    private DvrCameraSurfaceView cameraView;
+
+    /**
+     * Camera can be shown in a grid or full-screen (with higher resolution)
+     */
+    private boolean showFullScreen;
+
+    public DvrCamera() {
+    }
 
     public DvrCamera(int cameraId, String name) {
         this.cameraId = cameraId;
@@ -48,11 +63,42 @@ public class DvrCamera {
         this.isConnected = connected;
     }
 
+    public boolean isPlaying() {
+        return isPlaying;
+    }
+
+    public void setIsPlaying(boolean isPlaying) {
+        this.isPlaying = isPlaying;
+    }
+
     public int getPlayPort() {
         return playPort;
     }
 
     public void setPlayPort(int playPort) {
         this.playPort = playPort;
+    }
+
+    public DvrCameraSurfaceView getCameraView() {
+        return cameraView;
+    }
+
+    public void setCameraView(DvrCameraSurfaceView cameraView) {
+        this.cameraView = cameraView;
+    }
+
+    public boolean showFullScreen() {
+        return showFullScreen;
+    }
+
+    public void setShowFullScreen(boolean showFullScreen) {
+        this.showFullScreen = showFullScreen;
+    }
+
+    protected void stopPlaying() {
+        if (this.cameraView != null) {
+            this.cameraView.stopPlaying();
+            this.playPort = -1;
+        }
     }
 }

@@ -7,6 +7,8 @@ import android.text.TextUtils;
 import android.view.View;
 import android.widget.TextView;
 
+import com.example.andrei.cctv.hikvision.DvrCamera;
+import com.example.andrei.cctv.hikvision.DvrCameraSurfaceView;
 import com.example.andrei.cctv.hikvision.HikVisionDvrManager;
 
 public class DvrCameraFullScreenPreview extends AppCompatActivity {
@@ -17,7 +19,8 @@ public class DvrCameraFullScreenPreview extends AppCompatActivity {
     private HikVisionDvrManager dvrManager;
     private InitializeDvrManagerTask mTask;
 
-    private DvrCameraSurfaceView playerView;
+    private DvrCamera camera;
+    private DvrCameraSurfaceView cameraView;
     private TextView textCameraName;
     private TextView textErrorMessage;
 
@@ -31,7 +34,7 @@ public class DvrCameraFullScreenPreview extends AppCompatActivity {
 //        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_dvr_camera_full_screen_preview);
 
-        playerView = (DvrCameraSurfaceView) findViewById(R.id.dvr_camera_full_screen_camera_view);
+        cameraView = (DvrCameraSurfaceView) findViewById(R.id.dvr_camera_full_screen_camera_view);
         textCameraName = (TextView) findViewById(R.id.dvr_camera_full_screen_camera_name);
         textErrorMessage = (TextView) findViewById(R.id.dvr_camera_full_screen_message);
 
@@ -70,7 +73,13 @@ public class DvrCameraFullScreenPreview extends AppCompatActivity {
 
     private void initStreaming() {
         dvrManager = HikVisionDvrManager.getInstance();
-        dvrManager.setPlayerView(playerView);
+
+        camera = new DvrCamera(1, "CAMERA NAMe");
+        camera.setCameraView(cameraView);
+        camera.setShowFullScreen(true);
+        camera.setIsConnected(true);
+
+        dvrManager.addCamera(camera);
 
 
         if (mTask != null && !mTask.getStatus().equals(AsyncTask.Status.FINISHED)) {
@@ -90,6 +99,7 @@ public class DvrCameraFullScreenPreview extends AppCompatActivity {
 
         // Release DVR SDK
         if (dvrManager != null) {
+            dvrManager.stopCamera(camera);
             dvrManager.stopStreaming();
             dvrManager = null;
         }
@@ -125,7 +135,7 @@ public class DvrCameraFullScreenPreview extends AppCompatActivity {
         protected void onPostExecute(String result) {
             if (result.equals("OK")) {
                 if (dvrManager != null) {
-                    String startedStreaming = dvrManager.startStreaming();
+                    String startedStreaming = dvrManager.startStreaming(camera);
                     displayErrorMessage(startedStreaming);
                 }
 

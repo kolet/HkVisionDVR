@@ -13,7 +13,7 @@
         android:layout_height="220dp"
         android:background="@color/playback_avilable_time_area">
 
-        <com.example.andrei.cctv.DvrCameraSurfaceView
+        <com.example.andrei.cctv.hikvision.DvrCameraSurfaceView
             android:id="@+id/player_dvr_camera"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
@@ -51,7 +51,7 @@
         android:background="@color/playback_avilable_time_area"
         android:layout_marginLeft="8dp">
 
-        <com.example.andrei.cctv.DvrCameraSurfaceView
+        <com.example.andrei.cctv.hikvision.DvrCameraSurfaceView
             android:id="@+id/player_dvr_camera2"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />

@@ -9,6 +9,7 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.TextView;
 
+import com.example.andrei.cctv.hikvision.DvrCameraSurfaceView;
 import com.example.andrei.cctv.hikvision.HikVisionDvrManager;
 
 public class DvrCameraStreamingActivity extends Activity {
@@ -87,8 +88,8 @@ public class DvrCameraStreamingActivity extends Activity {
 
     private void initStreaming() {
         dvrManager = HikVisionDvrManager.getInstance();
-        dvrManager.setPlayerView(playerView1);
-        dvrManager.setPlayerView2(playerView2);
+      //  dvrManager.setPlayerView(playerView1);
+        //dvrManager.setPlayerView2(playerView2);
 
 
         if (mTask != null && !mTask.getStatus().equals(AsyncTask.Status.FINISHED)) {
@@ -143,8 +144,8 @@ public class DvrCameraStreamingActivity extends Activity {
         protected void onPostExecute(String result) {
             if (result.equals("OK")) {
                 if (dvrManager != null) {
-                    String startedStreaming = dvrManager.startStreaming();
-                    displayErrorMessage(startedStreaming);
+//                    String startedStreaming = dvrManager.startStreaming();
+//                    displayErrorMessage(startedStreaming);
                 }
 
             } else {

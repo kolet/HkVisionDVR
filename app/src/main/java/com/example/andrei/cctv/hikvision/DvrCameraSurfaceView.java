@@ -1,4 +1,4 @@
-package com.example.andrei.cctv;
+package com.example.andrei.cctv.hikvision;
 
 import android.content.Context;
 import android.util.AttributeSet;
@@ -48,7 +48,7 @@ public class DvrCameraSurfaceView extends SurfaceView implements SurfaceHolder.C
         playPort = Player.getInstance().getPort();
     }
 
-    public boolean startPlayer(byte[] buffer, int bufferSize) {
+    public boolean startPlaying(byte[] buffer, int bufferSize) {
         if (playPort == -1) {
             Log.d(TAG, "Play port is not ready!");
             return false;
@@ -68,7 +68,7 @@ public class DvrCameraSurfaceView extends SurfaceView implements SurfaceHolder.C
         }
 
         if (!Player.getInstance().play(playPort, this.getHolder().getSurface())) {
-            stopPlayer();
+            stopPlaying();
             Log.d(TAG, "Failed to play");
             // Set the video flow failure
 //            player.closeStream(playPort);
@@ -80,7 +80,7 @@ public class DvrCameraSurfaceView extends SurfaceView implements SurfaceHolder.C
         return true;
     }
 
-    public void stopPlayer() {
+    public void stopPlaying() {
         try {
             if (!Player.getInstance().stop(playPort)) {
                 Log.e(TAG, "Stop the play failed！");
@@ -104,10 +104,13 @@ public class DvrCameraSurfaceView extends SurfaceView implements SurfaceHolder.C
     }
 
     public void streamData(byte[] buffer, int bufferSize) {
-        if (bufferSize > 0 && playPort != -1) {
-            if (!Player.getInstance().inputData(playPort, buffer, bufferSize)) {
-                Log.d(TAG, "Playing failed: " /*+ getErrorMessage()*/);
-            }
+        if (playPort < 0 || bufferSize <= 0) {
+            System.out.println("skipping");
+            return;
+        }
+
+        if (!Player.getInstance().inputData(playPort, buffer, bufferSize)) {
+            Log.d(TAG, "Playing failed: " /*+ getErrorMessage()*/);
         }
     }
 
