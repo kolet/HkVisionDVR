@@ -1,4 +1,4 @@
-package com.example.andrei.cctv.graphics;
+package com.example.andrei.cctv.hikvision;
 
 public class DvrCamera {
 

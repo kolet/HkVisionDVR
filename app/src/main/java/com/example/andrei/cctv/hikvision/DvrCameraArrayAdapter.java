@@ -1,4 +1,4 @@
-package com.example.andrei.cctv.graphics;
+package com.example.andrei.cctv.hikvision;
 
 import android.app.Activity;
 import android.content.Context;

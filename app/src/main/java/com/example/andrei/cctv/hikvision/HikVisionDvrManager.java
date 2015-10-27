@@ -203,20 +203,20 @@ public class HikVisionDvrManager {
 
             // Preview parameter configuration
             //clientInfo.lChannel = channel + dvr_deviceinfo.byStartChan;
-            clientInfo.lChannel = 2;
-            clientInfo.lLinkMode = 0;
-//	    clientInfo.lLinkMode = 0x80000000;
-
-            // A multicast address, multicast preview configuration needs
-            clientInfo.sMultiCastIP = null;
-
-            playTagID = hcNetSdk.NET_DVR_RealPlay_V30(userId, clientInfo, realplayCallback2, true);
-
-            if (playTagID < 0) {
-                String errorMessage = getErrorMessage();
-                Log.e(TAG, "Real time playback failure！" + errorMessage);
-                return errorMessage;
-            }
+//            clientInfo.lChannel = 2;
+//            clientInfo.lLinkMode = 0;
+////	    clientInfo.lLinkMode = 0x80000000;
+//
+//            // A multicast address, multicast preview configuration needs
+//            clientInfo.sMultiCastIP = null;
+//
+//            playTagID = hcNetSdk.NET_DVR_RealPlay_V30(userId, clientInfo, realplayCallback2, true);
+//
+//            if (playTagID < 0) {
+//                String errorMessage = getErrorMessage();
+//                Log.e(TAG, "Real time playback failure！" + errorMessage);
+//                return errorMessage;
+//            }
 
         } catch (Exception e) {
             Log.e(TAG, "Abnormal: " + e.toString());

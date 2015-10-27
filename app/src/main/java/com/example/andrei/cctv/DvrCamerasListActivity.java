@@ -7,8 +7,8 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.GridView;
 
-import com.example.andrei.cctv.graphics.DvrCamera;
-import com.example.andrei.cctv.graphics.DvrCameraArrayAdapter;
+import com.example.andrei.cctv.hikvision.DvrCamera;
+import com.example.andrei.cctv.hikvision.DvrCameraArrayAdapter;
 
 import java.util.ArrayList;
 
@@ -36,10 +36,10 @@ public class DvrCamerasListActivity extends AppCompatActivity {
 
                 // Only show the full-screen camera preview if it is connected
                 if (item.isConnected()) {
-                    Intent intent = new Intent(DvrCamerasListActivity.this, DvrCameraStreamingActivity.class);
+                    Intent intent = new Intent(DvrCamerasListActivity.this, DvrCameraFullScreenPreview.class);
 
-                    intent.putExtra(DvrCameraStreamingActivity.EXTRA_CAMERA_ID, item.getCameraId());
-                    intent.putExtra(DvrCameraStreamingActivity.EXTRA_CAMERA_NAME, item.getName());
+                    intent.putExtra(DvrCameraFullScreenPreview.EXTRA_CAMERA_ID, item.getCameraId());
+                    intent.putExtra(DvrCameraFullScreenPreview.EXTRA_CAMERA_NAME, item.getName());
 
                     startActivity(intent);
 

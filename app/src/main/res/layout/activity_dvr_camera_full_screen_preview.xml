@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.example.andrei.cctv.DvrCameraFullScreenPreview">
+
+    <FrameLayout
+        android:id="@+id/dvr_camera_full_screen_frame"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/playback_avilable_time_area">
+
+        <com.example.andrei.cctv.DvrCameraSurfaceView
+            android:id="@+id/dvr_camera_full_screen_camera_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+        <TextView
+            android:id="@+id/dvr_camera_full_screen_message"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:paddingLeft="48dp"
+            android:paddingRight="48dp"
+            android:text="ERROR MESSAGE"
+            android:textColor="@color/common_color_red"
+            android:textSize="22dp"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/dvr_camera_full_screen_camera_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="right"
+            android:paddingRight="16dp"
+            android:paddingTop="16dp"
+            android:text=""
+            android:textColor="@color/white"
+            android:textSize="22dp"
+            tools:text="CAMERA NAME" />
+
+    </FrameLayout>
+
+</RelativeLayout>
