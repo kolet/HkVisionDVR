@@ -100,7 +100,7 @@ public class DvrCameraFullScreenPreview extends AppCompatActivity {
         // Release DVR SDK
         if (dvrManager != null) {
             //dvrManager.stopCamera(camera);
-           // dvrManager.stopStreaming();
+           // dvrManager.logout();
             dvrManager = null;
         }
 

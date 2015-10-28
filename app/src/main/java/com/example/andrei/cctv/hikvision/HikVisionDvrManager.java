@@ -12,18 +12,16 @@ import com.hikvision.netsdk.SDKError;
 public class HikVisionDvrManager {
     private static final String TAG = "HikVisionDvrManager";
 
-    // Move this to DvrDeviceInfo
+    // TODO: Move this to DvrDeviceInfo
     private static final String DVR_IP = "192.168.1.10";
     private static final int DVR_PORT = 8000;
 
     private static DvrDeviceInfo deviceInfo;
 
-    private static final int BUFFER_POOL_SIZE = 1024 * 1024 * 4;
-
     private static HikVisionDvrManager manager = null;
     private static HCNetSDK hcNetSdk = new HCNetSDK();
 
-    //private int playTagID = -1;  // -1 = not playing, 0 = playing video
+    private int playTagID = -1;  // -1 = not playing, 0 = playing video
     private int userId = -1;
 
     //<editor-fold desc="Instance">
@@ -128,7 +126,7 @@ public class HikVisionDvrManager {
     /**
      * Stop streaming data to the specific play port
      */
-    public void stopStreaming(int playPort) {
+    public void logout(int playPort) {
         try {
             // Free the SDK
             hcNetSdk.NET_DVR_StopRealPlay(playPort);

@@ -27,8 +27,6 @@ public class DvrCameraStreamingActivity extends Activity {
     private HikVisionDvrManager dvrManager;
     private InitializeDvrManagerTask mTask;
 
-    //private TextView textErrorMessage;
-
     private LinearLayout parentLayout;
 
     private ArrayList<DvrCamera> cameras = new ArrayList<>();
@@ -109,22 +107,22 @@ public class DvrCameraStreamingActivity extends Activity {
     @Override
     protected void onStart() {
         super.onStart();
-        initStreaming();
+        initDVR();
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-        // stopStreaming();
+        // tearDown();
     }
 
 
     @Override
     public void onBackPressed() {
-        stopStreaming();
+        tearDown();
     }
 
-    private void initStreaming() {
+    private void initDVR() {
         dvrManager = HikVisionDvrManager.getInstance();
 
         if (mTask != null && !mTask.getStatus().equals(AsyncTask.Status.FINISHED)) {
@@ -135,7 +133,7 @@ public class DvrCameraStreamingActivity extends Activity {
         mTask.execute();
     }
 
-    private void stopStreaming() {
+    private void tearDown() {
         // Cancel DVR SDK initialisation, if it is happening
         if (mTask != null && !mTask.getStatus().equals(AsyncTask.Status.FINISHED)) {
             mTask.cancel(true);
@@ -146,7 +144,7 @@ public class DvrCameraStreamingActivity extends Activity {
         if (dvrManager != null) {
             if (cameras.size() > 0) {
                 // we could stop streaming
-                dvrManager.stopStreaming(cameras.get(0).getPlayPort());
+                dvrManager.logout(cameras.get(0).getPlayPort());
 
                 for (DvrCamera camera : cameras) {
                     camera.stop();
