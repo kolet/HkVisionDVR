@@ -2,7 +2,7 @@ package com.example.andrei.cctv.hikvision;
 
 import android.util.Log;
 
-import com.example.andrei.cctv.DebugTools;
+import com.example.andrei.cctv.utils.DebugTools;
 import com.hikvision.netsdk.ExceptionCallBack;
 import com.hikvision.netsdk.HCNetSDK;
 import com.hikvision.netsdk.NET_DVR_DEVICEINFO_V30;

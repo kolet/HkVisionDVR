@@ -1,4 +1,4 @@
-package com.example.andrei.cctv;
+package com.example.andrei.cctv.utils;
 
 import java.lang.reflect.Field;
 

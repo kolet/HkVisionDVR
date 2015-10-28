@@ -19,7 +19,7 @@ import com.example.andrei.cctv.hikvision.HikVisionDvrManager;
 
 import java.util.ArrayList;
 
-public class DvrCameraStreamingActivity extends Activity {
+public class Test1Activity extends Activity {
 
     public static final String EXTRA_CAMERA_ID = "CameraID";
     public static final String EXTRA_CAMERA_NAME = "CameraName";

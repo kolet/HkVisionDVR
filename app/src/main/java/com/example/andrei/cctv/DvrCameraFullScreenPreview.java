@@ -1,8 +1,8 @@
 package com.example.andrei.cctv;
 
+import android.app.Activity;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.TextView;
@@ -11,7 +11,7 @@ import com.example.andrei.cctv.hikvision.DvrCamera;
 import com.example.andrei.cctv.hikvision.DvrCameraSurfaceView;
 import com.example.andrei.cctv.hikvision.HikVisionDvrManager;
 
-public class DvrCameraFullScreenPreview extends AppCompatActivity {
+public class DvrCameraFullScreenPreview extends Activity {
 
     public static final String EXTRA_CAMERA_ID = "CameraID";
     public static final String EXTRA_CAMERA_NAME = "CameraName";
@@ -44,18 +44,18 @@ public class DvrCameraFullScreenPreview extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        initStreaming();
+        initDVR();
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-        stopStreaming();
+        tearDown();
     }
 
     @Override
     public void onBackPressed() {
-        stopStreaming();
+        tearDown();
     }
 
     private void loadExtras() {
@@ -71,7 +71,7 @@ public class DvrCameraFullScreenPreview extends AppCompatActivity {
         }
     }
 
-    private void initStreaming() {
+    private void initDVR() {
         dvrManager = HikVisionDvrManager.getInstance();
 
         camera = new DvrCamera(1, "CAMERA NAMe");
@@ -90,7 +90,7 @@ public class DvrCameraFullScreenPreview extends AppCompatActivity {
         mTask.execute();
     }
 
-    private void stopStreaming() {
+    private void tearDown() {
         // Cancel DVR SDK initialisation, if it is happening
         if (mTask != null && !mTask.getStatus().equals(AsyncTask.Status.FINISHED)) {
             mTask.cancel(true);
@@ -99,8 +99,14 @@ public class DvrCameraFullScreenPreview extends AppCompatActivity {
 
         // Release DVR SDK
         if (dvrManager != null) {
-            //dvrManager.stopCamera(camera);
-           // dvrManager.logout();
+            int playPort = camera.getPlayPort();
+
+            if (camera != null) {
+                camera.stop();
+                camera = null;
+            }
+
+            dvrManager.logout(playPort);
             dvrManager = null;
         }
 
@@ -108,7 +114,6 @@ public class DvrCameraFullScreenPreview extends AppCompatActivity {
     }
 
     private class InitializeDvrManagerTask extends AsyncTask<Void, Void, String> {
-
         @Override
         protected String doInBackground(Void... params) {
             if (isCancelled()){
@@ -135,8 +140,7 @@ public class DvrCameraFullScreenPreview extends AppCompatActivity {
         protected void onPostExecute(String result) {
             if (result.equals("OK")) {
                 if (dvrManager != null) {
-//                    String startedStreaming = dvrManager.startStreamingV2(camera);
-//                    displayErrorMessage(startedStreaming);
+                    camera.play();
                 }
 
             } else {
