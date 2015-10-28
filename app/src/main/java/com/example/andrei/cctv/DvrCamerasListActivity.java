@@ -53,7 +53,7 @@ public class DvrCamerasListActivity extends AppCompatActivity {
     private void setDummyData() {
         cameras = new ArrayList<>();
 
-        DvrCamera camera1 = new DvrCamera(1, "Camera 1");
+        DvrCamera camera1 = new DvrCamera(1, "Working Cam");
         DvrCamera camera2 = new DvrCamera(2, "Camera 2");
         DvrCamera camera3 = new DvrCamera(1, "Camera 3");
         DvrCamera camera4 = new DvrCamera(2, "Camera 4");

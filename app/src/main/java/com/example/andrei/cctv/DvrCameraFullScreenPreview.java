@@ -64,23 +64,18 @@ public class DvrCameraFullScreenPreview extends Activity {
         if (extras != null) {
             cameraId = extras.getInt(EXTRA_CAMERA_ID);
 
-            cameraName = extras.getString(EXTRA_CAMERA_NAME);
-            if (!TextUtils.isEmpty(cameraName)) {
-                textCameraName.setText(cameraName);
-            }
+            cameraName = TextUtils.isEmpty(extras.getString(EXTRA_CAMERA_NAME)) ? "NONAME" : extras.getString(EXTRA_CAMERA_NAME);
+            textCameraName.setText(cameraName);
         }
     }
 
     private void initDVR() {
         dvrManager = HikVisionDvrManager.getInstance();
 
-        camera = new DvrCamera(1, "CAMERA NAMe");
+        camera = new DvrCamera(cameraId, cameraName);
         camera.setCameraView(cameraView);
         camera.setShowFullScreen(true);
         camera.setIsConnected(true);
-
-        //dvrManager.addCamera(camera);
-
 
         if (mTask != null && !mTask.getStatus().equals(AsyncTask.Status.FINISHED)) {
             return;
