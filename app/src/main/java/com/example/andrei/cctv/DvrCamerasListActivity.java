@@ -26,11 +26,23 @@ public class DvrCamerasListActivity extends BaseDVRActivity {
         gridView = (GridView) findViewById(R.id.gridview_dvr_camera_list);
         textErrorMessage = (TextView) findViewById(R.id.dvr_camera_list_no_items);
 
-        setupUI();
     }
 
-    private void setupUI() {
-        adapter = new DvrCameraArrayAdapter(this, R.layout.gridview_item_dvr_camera);
+    @Override
+    protected void onDvrInitSuccess() {
+        cameras = new ArrayList<>();
+
+        DvrCamera camera1 = new DvrCamera(1, "Working Cam", true);
+        //DvrCamera camera2 = new DvrCamera(2, "Camera 2", true);
+//        DvrCamera camera3 = new DvrCamera(3, "Camera 3");
+//        DvrCamera camera4 = new DvrCamera(4, "Camera 4");
+
+        cameras.add(camera1);
+        //cameras.add(camera2);
+//        cameras.add(camera3);
+//        cameras.add(camera4);
+
+        adapter = new DvrCameraArrayAdapter(this, R.layout.gridview_item_dvr_camera, cameras);
         gridView.setAdapter(adapter);
 
         gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -52,23 +64,6 @@ public class DvrCamerasListActivity extends BaseDVRActivity {
                 }
             }
         });
-    }
-
-    @Override
-    protected void onDvrInitSuccess() {
-        cameras = new ArrayList<>();
-
-        DvrCamera camera1 = new DvrCamera(1, "Working Cam", true);
-        DvrCamera camera2 = new DvrCamera(2, "Camera 2");
-        DvrCamera camera3 = new DvrCamera(3, "Camera 3");
-        DvrCamera camera4 = new DvrCamera(4, "Camera 4");
-
-        cameras.add(camera1);
-        cameras.add(camera2);
-        cameras.add(camera3);
-        cameras.add(camera4);
-
-        adapter.setData(cameras);
     }
 
     @Override

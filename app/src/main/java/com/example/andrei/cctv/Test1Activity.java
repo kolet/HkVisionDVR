@@ -6,11 +6,10 @@ import android.os.Build;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.view.Display;
-import android.view.ViewGroup;
+import android.view.Gravity;
 import android.view.Window;
 import android.view.WindowManager;
-import android.widget.FrameLayout;
-import android.widget.LinearLayout;
+import android.widget.GridLayout;
 import android.widget.RelativeLayout;
 
 import com.example.andrei.cctv.hikvision.DvrCamera;
@@ -27,7 +26,7 @@ public class Test1Activity extends Activity {
     private HikVisionDvrManager dvrManager;
     private InitializeDvrManagerTask mTask;
 
-    private LinearLayout parentLayout;
+    private RelativeLayout parentLayout;
 
     private ArrayList<DvrCamera> cameras = new ArrayList<>();
     private final int CAMERAS_NUMBER = 4;
@@ -37,9 +36,9 @@ public class Test1Activity extends Activity {
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
-        setContentView(R.layout.activity_dvr_camera_streaming);
+        setContentView(R.layout.activity_dvr_cameras_grid);
 
-        parentLayout = (LinearLayout) findViewById(R.id.layout_dvr_camera_list);
+        parentLayout = (RelativeLayout) findViewById(R.id.layout_dvr_camera_list);
         initCameras();
     }
 
@@ -53,40 +52,59 @@ public class Test1Activity extends Activity {
             display.getMetrics(outMetrics);
         }
 
-        for (int i = 1; i <= CAMERAS_NUMBER; i++) {
-            FrameLayout childLayout = new FrameLayout(this);
-            FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(320, 200);
-            params.setMargins(8, 8, 8, 8);
+        GridLayout gridLayout = (GridLayout) findViewById(R.id.grid_dvr_cameras_2_cols);
+        gridLayout.removeAllViews();
 
-            childLayout.setLayoutParams(params);
+        gridLayout.setColumnCount(2);
+        //int rows = CAMERAS_NUMBER / 2;
+        gridLayout.setRowCount(CAMERAS_NUMBER / 2);
 
+        for (int i = 0, col = 0, row = 0; i < CAMERAS_NUMBER; i++, col++) {
+            if (col == 2) {
+                // start new row
+                col = 0;
+                row++;
+            }
+
+            // Add a camera preview to the grid programmatically
             DvrCameraSurfaceView cameraView = new DvrCameraSurfaceView(this);
-            RelativeLayout.LayoutParams cameraViewParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
-            cameraView.setLayoutParams(cameraViewParams);
-            childLayout.addView(cameraView);
-//
-            DvrCamera camera = new DvrCamera(i, "CAMERA " + i);
+
+            GridLayout.LayoutParams params = new GridLayout.LayoutParams();
+            params.width = outMetrics.widthPixels / 2 - 4;
+            params.height = 360;
+            params.leftMargin = 2;
+            params.rightMargin = 2;
+            params.topMargin = 2;
+            params.bottomMargin = 2;
+
+            params.setGravity(Gravity.CENTER);
+
+            params.columnSpec = GridLayout.spec(col);
+            params.rowSpec = GridLayout.spec(row);
+            cameraView.setLayoutParams(params);
+
+            gridLayout.addView(cameraView);
+
+            int cameraId = i + 1;
+            DvrCamera camera = new DvrCamera(cameraId, "Camera " + cameraId, true);
             camera.setCameraView(cameraView);
             camera.setShowFullScreen(false);
-            camera.setIsConnected(true);
 
             cameras.add(camera);
-
-
-//            <com.example.andrei.cctv.hikvision.DvrCameraSurfaceView
-//            android:id="@+id/player_dvr_camera2"
-//            android:layout_width="match_parent"
-//            android:layout_height="match_parent" />
-
-
-            parentLayout.addView(childLayout);
         }
 
-//        DvrCameraSurfaceView cameraView1 = (DvrCameraSurfaceView) findViewById(R.id.player_dvr_camera);
+
+//        for (int i = 1; i <= CAMERAS_NUMBER; i++) {
+//
+//        }
+
+//        DvrCameraSurfaceView cameraView1 = (DvrCameraSurfaceView) findViewById(R.id.player_dvr_camera1);
 //        DvrCamera camera1 = new DvrCamera(1, "CAMERA 1");
 //        camera1.setCameraView(cameraView1);
 //        camera1.setShowFullScreen(false);
 //        camera1.setIsConnected(true);
+//
+//        cameras.add(camera1);
 //
 //        DvrCameraSurfaceView cameraView2 = (DvrCameraSurfaceView) findViewById(R.id.player_dvr_camera2);
 //
@@ -95,7 +113,6 @@ public class Test1Activity extends Activity {
 //        camera2.setShowFullScreen(false);
 //        camera2.setIsConnected(false);
 //
-//        cameras.add(camera1);
 //        cameras.add(camera2);
     }
 

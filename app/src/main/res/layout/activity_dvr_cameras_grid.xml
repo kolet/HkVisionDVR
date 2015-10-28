@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/layout_dvr_camera_list"
+
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:keepScreenOn="true"
+    android:orientation="horizontal"
+    android:background="@color/window_frame_selected_color">
+
+    <GridLayout
+        android:id="@+id/grid_dvr_cameras_2_cols"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="center_vertical"
+        android:columnCount="2"/>
+
+</RelativeLayout>

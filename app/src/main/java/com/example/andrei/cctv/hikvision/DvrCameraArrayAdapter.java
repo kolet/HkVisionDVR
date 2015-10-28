@@ -18,7 +18,7 @@ public class DvrCameraArrayAdapter extends ArrayAdapter<DvrCamera> {
     private Context context;
     //private Drawable noVideoImage;
 
-    private ArrayList<DvrCamera> items = new ArrayList<>();
+    private ArrayList<DvrCamera> cameras = new ArrayList<>();
 
     public DvrCameraArrayAdapter(Context context, int layoutResourceId) {
         super(context, layoutResourceId);
@@ -28,25 +28,25 @@ public class DvrCameraArrayAdapter extends ArrayAdapter<DvrCamera> {
         layoutInflater = ((Activity) context).getLayoutInflater();
     }
 
-    public DvrCameraArrayAdapter(Context context, int layoutResourceId, ArrayList<DvrCamera> items) {
-        super(context, layoutResourceId, items);
+    public DvrCameraArrayAdapter(Context context, int layoutResourceId, ArrayList<DvrCamera> cameras) {
+        super(context, layoutResourceId, cameras);
 
         this.context = context;
         this.layoutResourceId = layoutResourceId;
-        this.items = items;
+        this.cameras = cameras;
 
         layoutInflater = ((Activity) context).getLayoutInflater();
     }
 
     @Override
     public int getCount() {
-        return items.size();
+        return cameras.size();
     }
 
     @Override
     public DvrCamera getItem(int position) {
 
-        return items.get(position);
+        return cameras.get(position);
     }
 
     @Override
@@ -79,10 +79,11 @@ public class DvrCameraArrayAdapter extends ArrayAdapter<DvrCamera> {
 
         DvrCamera camera = getItem(position);
 
-        if (camera != null && camera.isConnected() && !camera.isInitialised()) {
-            holder.cameraView.setZOrderOnTop(true);
+        if (camera != null  && camera.isConnected() && !camera.isInitialised()) {
+            //holder.cameraView.setZOrderOnTop(true);
             camera.setCameraView(holder.cameraView);
             //holder.cameraName.setText(item.getName());
+
             camera.setInitialised(true);
             camera.play();
         }
@@ -92,10 +93,6 @@ public class DvrCameraArrayAdapter extends ArrayAdapter<DvrCamera> {
         return row;
     }
 
-    public void setData(ArrayList<DvrCamera> cameras) {
-        this.items = cameras;
-        notifyDataSetChanged();
-    }
 
     private static class ViewHolder {
         ImageView imageNoVideo;

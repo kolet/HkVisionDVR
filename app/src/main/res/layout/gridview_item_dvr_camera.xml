@@ -2,7 +2,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/shape_gird_item_grey">
+  >
 
     <!--<ProgressBar-->
     <!--android:id="@+id/progress_camera_connection"-->
@@ -15,11 +15,13 @@
 
 
     <com.example.andrei.cctv.hikvision.DvrCameraSurfaceView
+        xmlns:android="http://schemas.android.com/apk/res/android"
         android:id="@+id/grid_item_camera_view"
-        android:layout_width="220dp"
-        android:layout_height="180dp"
+        android:layout_width="180dp"
+        android:layout_height="160dp"
         android:layout_centerInParent="true"
-        android:layout_gravity="center" />
+        android:layout_gravity="center"
+        android:background="@drawable/shape_gird_item_grey"/>
 
     <ImageView
         android:id="@+id/grid_item_image_no_video"

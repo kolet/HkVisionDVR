@@ -123,7 +123,7 @@ public class DvrCameraSurfaceView extends SurfaceView implements SurfaceHolder.C
     @Override
     public void surfaceDestroyed(SurfaceHolder holder) {
         if (realplayCallback != null) {
-            this.getHolder().removeCallback(this);
+            getHolder().removeCallback(this);
         }
 //        this.getHolder().removeCallback(this);
 //        this.getHolder().getSurface().release();
@@ -150,19 +150,6 @@ public class DvrCameraSurfaceView extends SurfaceView implements SurfaceHolder.C
                 return;
             }
 
-//            if (cameras == null || cameras.size() == 0) {
-//                // No available cameras
-//                return;
-//            }
-//
-//            DvrCamera cam = cameras.get(currentCamera - 1);
-//
-//            if (cam == null) {
-//                return;
-//            }
-
-//            DvrCameraSurfaceView playerView = cam.getCameraView();
-//
             try {
                 switch (dataType) {
                     case HCNetSDK.NET_DVR_SYSHEAD:
