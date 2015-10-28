@@ -1,11 +1,11 @@
 package com.example.andrei.cctv.hikvision;
 
 public class DvrDeviceInfo {
-    public String serverip = "";
-    public int serverport = 8000;
-    public String username = "";
-    public String userpwd = "";
-    public String describe = "";
+    public String serverIP = "";
+    public int serverPort = 8000;
+    public String userName = "";
+    public String userPassword = "";
+    public String description = "";
 
     public String serialNumber;
 

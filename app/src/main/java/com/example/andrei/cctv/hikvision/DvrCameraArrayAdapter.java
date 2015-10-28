@@ -7,8 +7,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
-import android.widget.ProgressBar;
-import android.widget.TextView;
 
 import com.example.andrei.cctv.R;
 
@@ -21,6 +19,14 @@ public class DvrCameraArrayAdapter extends ArrayAdapter<DvrCamera> {
     //private Drawable noVideoImage;
 
     private ArrayList<DvrCamera> items = new ArrayList<>();
+
+    public DvrCameraArrayAdapter(Context context, int layoutResourceId) {
+        super(context, layoutResourceId);
+
+        this.context = context;
+        this.layoutResourceId = layoutResourceId;
+        layoutInflater = ((Activity) context).getLayoutInflater();
+    }
 
     public DvrCameraArrayAdapter(Context context, int layoutResourceId, ArrayList<DvrCamera> items) {
         super(context, layoutResourceId, items);
@@ -39,45 +45,51 @@ public class DvrCameraArrayAdapter extends ArrayAdapter<DvrCamera> {
 
     @Override
     public DvrCamera getItem(int position) {
+
         return items.get(position);
     }
 
     @Override
     public long getItemId(int position) {
+
         return position;
     }
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
+        View row = convertView;
         ViewHolder holder = null;
 
-        if (convertView == null) {
-            convertView = layoutInflater.from(context).inflate(layoutResourceId, parent, false);
-
+        if (row == null) {
+            //row = LayoutInflater.from(context).inflate(layoutResourceId, null);
+            row = layoutInflater.inflate(layoutResourceId, parent, false); // inflater.inflate(R.layout.rowlayout, null, true);
+//  mInflater.inflate(R.layout.item_objects, null);  LayoutInflater.from(context).inflate(R.layout.layout_city,null);
             holder = new ViewHolder();
-            //holder.imageView = (ImageView) convertView.findViewById(R.id.grid_item_camera_view);
-            holder.progressBar = (ProgressBar) convertView.findViewById(R.id.progress_camera_connection);
-            holder.cameraName = (TextView) convertView.findViewById(R.id.grid_item_camera_name);
-            holder.imageNoVideo = (ImageView)convertView.findViewById(R.id.grid_item_image_no_video);
-            convertView.setTag(holder);
+            //holder.imageView = (ImageView) row.findViewById(R.id.grid_item_camera_view);
+            //holder.progressBar = (ProgressBar) row.findViewById(R.id.progress_camera_connection);
+//            holder.cameraName = (TextView) row.findViewById(R.id.grid_item_camera_name);
+            holder.imageNoVideo = (ImageView)row.findViewById(R.id.grid_item_image_no_video);
+            holder.cameraView = (DvrCameraSurfaceView) row.findViewById(R.id.grid_item_camera_view);
+
+            row.setTag(holder);
 
         } else {
-            holder = (ViewHolder) convertView.getTag();
+            holder = (ViewHolder) row.getTag();
         }
 
-        DvrCamera item = getItem(position);
-        holder.cameraName.setText(item.getName());
+        DvrCamera camera = getItem(position);
 
-        if (!item.isConnected()) {
-            // No Video available
-            holder.progressBar.setVisibility(View.GONE);
-            holder.imageNoVideo.setVisibility(View.VISIBLE);
-        } else {
-            holder.progressBar.setVisibility(View.VISIBLE);
-            holder.imageNoVideo.setVisibility(View.GONE);
+        if (camera != null && camera.isConnected() && !camera.isInitialised()) {
+            holder.cameraView.setZOrderOnTop(true);
+            camera.setCameraView(holder.cameraView);
+            //holder.cameraName.setText(item.getName());
+            camera.setInitialised(true);
+            camera.play();
         }
 
-        return convertView;
+        holder.imageNoVideo.setVisibility(camera.isConnected() ? View.GONE : View.VISIBLE);
+
+        return row;
     }
 
     public void setData(ArrayList<DvrCamera> cameras) {
@@ -87,7 +99,8 @@ public class DvrCameraArrayAdapter extends ArrayAdapter<DvrCamera> {
 
     private static class ViewHolder {
         ImageView imageNoVideo;
-        ProgressBar progressBar;
-        TextView cameraName;
+        //ProgressBar progressBar;
+        //TextView cameraName;
+        DvrCameraSurfaceView cameraView;
     }
 }

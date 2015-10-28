@@ -94,9 +94,6 @@ public class DvrCameraSurfaceView extends SurfaceView implements SurfaceHolder.C
             playTagID = -1;
 
             destroyDrawingCache();
-            //this.getHolder().removeCallback(this);
-
-            // done with the Surface
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -184,7 +181,7 @@ public class DvrCameraSurfaceView extends SurfaceView implements SurfaceHolder.C
                         }
 
                         if (!Player.getInstance().play(playPort, getHolder().getSurface())) {
-                            stopPlaying();
+                            //stopPlaying();
                             Log.d(TAG, "Failed to play");
                             break;
                         }

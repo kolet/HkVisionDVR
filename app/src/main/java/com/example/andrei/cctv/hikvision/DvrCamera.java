@@ -17,6 +17,8 @@ public class DvrCamera {
     // -1 = not playing, 0 = playing video
     private boolean isPlaying;
 
+    private boolean isInitialised;
+
     /***
      * Play port of the camera used by Player SDK to connect and openPlayer to the camera.
      */
@@ -36,15 +38,14 @@ public class DvrCamera {
     }
 
     public DvrCamera(int cameraId, String name) {
-        this.cameraId = cameraId;
-        this.name = name;
-        this.isConnected = false;
+        this(cameraId, name, false);
     }
 
     public DvrCamera(int cameraId, String name, boolean isConnected) {
         this.cameraId = cameraId;
         this.name = name;
         this.isConnected = isConnected;
+        this.isInitialised = false;
     }
 
     public int getCameraId() {
@@ -77,6 +78,14 @@ public class DvrCamera {
 
     public void setIsPlaying(boolean isPlaying) {
         this.isPlaying = isPlaying;
+    }
+
+    public boolean isInitialised() {
+        return isInitialised;
+    }
+
+    public void setInitialised(boolean isInitialised) {
+        this.isInitialised = isInitialised;
     }
 
     public int getPlayPort() {

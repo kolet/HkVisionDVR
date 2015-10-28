@@ -15,6 +15,7 @@ import java.util.ArrayList;
 public class DvrCamerasListActivity extends BaseDVRActivity {
 
     private GridView gridView;
+    private DvrCameraArrayAdapter adapter;
     private TextView textErrorMessage;
 
     @Override
@@ -24,33 +25,14 @@ public class DvrCamerasListActivity extends BaseDVRActivity {
 
         gridView = (GridView) findViewById(R.id.gridview_dvr_camera_list);
         textErrorMessage = (TextView) findViewById(R.id.dvr_camera_list_no_items);
+
+        setupUI();
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        addCameras();
-    }
-
-    @Override
-    protected void addCameras() {
-        cameras = new ArrayList<>();
-
-        DvrCamera camera1 = new DvrCamera(1, "Working Cam", true);
-        DvrCamera camera2 = new DvrCamera(2, "Camera 2");
-        DvrCamera camera3 = new DvrCamera(1, "Camera 3");
-        DvrCamera camera4 = new DvrCamera(2, "Camera 4");
-
-        cameras.add(camera1);
-        cameras.add(camera2);
-        cameras.add(camera3);
-        cameras.add(camera4);
-    }
-
-    @Override
-    protected void onDvrInitSuccess() {
-        DvrCameraArrayAdapter adapter = new DvrCameraArrayAdapter(this, R.layout.gridview_item_dvr_camera, cameras);
+    private void setupUI() {
+        adapter = new DvrCameraArrayAdapter(this, R.layout.gridview_item_dvr_camera);
         gridView.setAdapter(adapter);
+
         gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
@@ -70,6 +52,23 @@ public class DvrCamerasListActivity extends BaseDVRActivity {
                 }
             }
         });
+    }
+
+    @Override
+    protected void onDvrInitSuccess() {
+        cameras = new ArrayList<>();
+
+        DvrCamera camera1 = new DvrCamera(1, "Working Cam", true);
+        DvrCamera camera2 = new DvrCamera(2, "Camera 2");
+        DvrCamera camera3 = new DvrCamera(3, "Camera 3");
+        DvrCamera camera4 = new DvrCamera(4, "Camera 4");
+
+        cameras.add(camera1);
+        cameras.add(camera2);
+        cameras.add(camera3);
+        cameras.add(camera4);
+
+        adapter.setData(cameras);
     }
 
     @Override

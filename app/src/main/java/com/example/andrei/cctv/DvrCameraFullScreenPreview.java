@@ -37,7 +37,14 @@ public class DvrCameraFullScreenPreview extends BaseDVRActivity {
         textErrorMessage = (TextView) findViewById(R.id.dvr_camera_full_screen_message);
 
         loadExtras();
-        addCameras();
+
+        // Add Camera to DVR
+        camera = new DvrCamera(cameraId, cameraName);
+        camera.setCameraView(cameraView);
+        camera.setShowFullScreen(true);
+        camera.setIsConnected(true);
+
+        cameras.add(camera);
     }
 
 //    @Override
@@ -119,16 +126,6 @@ public class DvrCameraFullScreenPreview extends BaseDVRActivity {
             textErrorMessage.setVisibility(View.VISIBLE);
             textErrorMessage.setText(errorMessage);
         }
-    }
-
-    @Override
-    protected void addCameras() {
-        camera = new DvrCamera(cameraId, cameraName);
-        camera.setCameraView(cameraView);
-        camera.setShowFullScreen(true);
-        camera.setIsConnected(true);
-
-        cameras.add(camera);
     }
 
     @Override

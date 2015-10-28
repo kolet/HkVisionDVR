@@ -7,23 +7,6 @@
     android:layout_height="match_parent"
     android:background="@color/black">
 
-    <GridView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:id="@+id/gridview_dvr_camera_list"
-        android:layout_centerVertical="true"
-        android:layout_centerHorizontal="true"
-        android:horizontalSpacing="4dp"
-        android:verticalSpacing="4dp"
-        android:padding="4dp"
-        android:numColumns="2"
-        android:clipToPadding="true"
-        android:fitsSystemWindows="true"
-        android:stretchMode="columnWidth"
-        android:clickable="true"
-        android:gravity="center"
-        android:background="@color/black"/>
-
     <TextView android:id="@+id/dvr_camera_list_no_items"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -31,6 +14,17 @@
         android:textSize="36sp"
         android:gravity="center"
         tools:text="Error Message"
-        android:visibility="gone"/>
+        android:visibility="visible"/>
+
+    <GridView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/gridview_dvr_camera_list"
+        android:horizontalSpacing="4dp"
+        android:verticalSpacing="4dp"
+        android:numColumns="2"
+        android:stretchMode="columnWidth"
+        android:clickable="true"
+        android:background="@color/black"/>
 
 </RelativeLayout>

@@ -118,9 +118,9 @@ public abstract class BaseDVRActivity extends Activity {
         }
     }
 
-    protected abstract void onDvrInitFailure(String errorMessage);
-
-    protected abstract void addCameras();
+//    protected abstract void addCamera();
 
     protected abstract void onDvrInitSuccess();
+
+    protected abstract void onDvrInitFailure(String errorMessage);
 }
