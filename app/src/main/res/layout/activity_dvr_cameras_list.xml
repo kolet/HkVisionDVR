@@ -9,7 +9,7 @@
     android:background="@color/black">
 
     <GridLayout
-        android:id="@+id/grid_dvr_cameras_2_cols"
+        android:id="@+id/grid_dvr_cameras"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_gravity="center_vertical"

@@ -52,7 +52,7 @@ public class Test1Activity extends Activity {
             display.getMetrics(outMetrics);
         }
 
-        GridLayout gridLayout = (GridLayout) findViewById(R.id.grid_dvr_cameras_2_cols);
+        GridLayout gridLayout = (GridLayout) findViewById(R.id.grid_dvr_cameras);
         gridLayout.removeAllViews();
 
         gridLayout.setColumnCount(2);

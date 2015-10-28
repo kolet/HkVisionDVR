@@ -18,6 +18,21 @@ public class DvrCameraSurfaceView extends SurfaceView implements SurfaceHolder.C
 
     private static final int BUFFER_POOL_SIZE = 1024 * 1024 * 4;
     private static final HCNetSDK hcNetSdk = new HCNetSDK();
+
+    //<editor-fold desc="Camera ID">
+
+    private int cameraId;
+
+    public int getCameraId() {
+        return cameraId;
+    }
+
+    public void setCameraId(int cameraId) {
+        this.cameraId = cameraId;
+    }
+
+    //</editor-fold>
+
     private int playPort = -1;
     private int playTagID = -1;
 
@@ -145,8 +160,7 @@ public class DvrCameraSurfaceView extends SurfaceView implements SurfaceHolder.C
                 return;
             }
 
-            if (playPort < 0) {
-                Log.d(TAG, "Play port is not ready!");
+            if (playPort == -1) {
                 return;
             }
 
@@ -178,10 +192,13 @@ public class DvrCameraSurfaceView extends SurfaceView implements SurfaceHolder.C
                     case HCNetSDK.NET_DVR_STREAMDATA:
                     case HCNetSDK.NET_DVR_STD_VIDEODATA:
                     case HCNetSDK.NET_DVR_STD_AUDIODATA:
-                        // Streaming data
-                        if (!Player.getInstance().inputData(playPort, buffer, bufferSize)) {
-                            Log.d(TAG, "Streaming data failed: " /*+ getErrorMessage()*/);
+                        if (bufferSize > 0 && playPort != -1) {
+                            // When we stop streaming, it is not instantaneous; skip outputing to a wrong port
+                            if (!Player.getInstance().inputData(playPort, buffer, bufferSize)) {
+                                Log.d(TAG, "Streaming data failed: " + getErrorMessage() + ". PlayPort=" + playPort);
+                            }
                         }
+
                         break;
                 }
 
