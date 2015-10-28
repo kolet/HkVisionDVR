@@ -92,28 +92,6 @@ public class Test1Activity extends Activity {
 
             cameras.add(camera);
         }
-
-
-//        for (int i = 1; i <= CAMERAS_NUMBER; i++) {
-//
-//        }
-
-//        DvrCameraSurfaceView cameraView1 = (DvrCameraSurfaceView) findViewById(R.id.player_dvr_camera1);
-//        DvrCamera camera1 = new DvrCamera(1, "CAMERA 1");
-//        camera1.setCameraView(cameraView1);
-//        camera1.setShowFullScreen(false);
-//        camera1.setIsConnected(true);
-//
-//        cameras.add(camera1);
-//
-//        DvrCameraSurfaceView cameraView2 = (DvrCameraSurfaceView) findViewById(R.id.player_dvr_camera2);
-//
-//        DvrCamera camera2 = new DvrCamera(2, "CAMERA 2");
-//        camera2.setCameraView(cameraView2);
-//        camera2.setShowFullScreen(false);
-//        camera2.setIsConnected(false);
-//
-//        cameras.add(camera2);
     }
 
     @Override

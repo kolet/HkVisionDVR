@@ -1,10 +1,6 @@
 package com.example.andrei.cctv;
 
-import android.content.Intent;
 import android.os.Bundle;
-import android.view.View;
-import android.widget.AdapterView;
-import android.widget.GridView;
 import android.widget.TextView;
 
 import com.example.andrei.cctv.hikvision.DvrCamera;
@@ -14,7 +10,6 @@ import java.util.ArrayList;
 
 public class DvrCamerasListActivity extends BaseDVRActivity {
 
-    private GridView gridView;
     private DvrCameraArrayAdapter adapter;
     private TextView textErrorMessage;
 
@@ -23,9 +18,7 @@ public class DvrCamerasListActivity extends BaseDVRActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_dvr_cameras_list);
 
-        gridView = (GridView) findViewById(R.id.gridview_dvr_camera_list);
-        textErrorMessage = (TextView) findViewById(R.id.dvr_camera_list_no_items);
-
+        //textErrorMessage = (TextView) findViewById(R.id.dvr_camera_list_no_items);
     }
 
     @Override
@@ -42,33 +35,33 @@ public class DvrCamerasListActivity extends BaseDVRActivity {
 //        cameras.add(camera3);
 //        cameras.add(camera4);
 
-        adapter = new DvrCameraArrayAdapter(this, R.layout.gridview_item_dvr_camera, cameras);
-        gridView.setAdapter(adapter);
-
-        gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
-                DvrCamera item = (DvrCamera) adapterView.getItemAtPosition(position);
-
-                // Only show the full-screen camera preview if it is connected
-                if (item.isConnected()) {
-                    Intent intent = new Intent(DvrCamerasListActivity.this, DvrCameraFullScreenPreview.class);
-
-                    intent.putExtra(DvrCameraFullScreenPreview.EXTRA_CAMERA_ID, item.getCameraId());
-                    intent.putExtra(DvrCameraFullScreenPreview.EXTRA_CAMERA_NAME, item.getName());
-
-                    startActivity(intent);
-
-
-                    //overridePendingTransition(R.anim.slide_activity_in_right, R.anim.slide_activity_out_right);
-                }
-            }
-        });
+//        adapter = new DvrCameraArrayAdapter(this, R.layout.gridview_item_dvr_camera, cameras);
+//        gridView.setAdapter(adapter);
+//
+//        gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+//            @Override
+//            public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
+//                DvrCamera item = (DvrCamera) adapterView.getItemAtPosition(position);
+//
+//                // Only show the full-screen camera preview if it is connected
+//                if (item.isConnected()) {
+//                    Intent intent = new Intent(DvrCamerasListActivity.this, DvrCameraFullScreenPreview.class);
+//
+//                    intent.putExtra(DvrCameraFullScreenPreview.EXTRA_CAMERA_ID, item.getCameraId());
+//                    intent.putExtra(DvrCameraFullScreenPreview.EXTRA_CAMERA_NAME, item.getName());
+//
+//                    startActivity(intent);
+//
+//
+//                    //overridePendingTransition(R.anim.slide_activity_in_right, R.anim.slide_activity_out_right);
+//                }
+//            }
+//        });
     }
 
     @Override
     protected void onDvrInitFailure(String errorMessage) {
-        textErrorMessage.setVisibility(View.VISIBLE);
-        textErrorMessage.setText(errorMessage);
+//        textErrorMessage.setVisibility(View.VISIBLE);
+//        textErrorMessage.setText(errorMessage);
     }
 }
