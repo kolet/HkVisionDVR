@@ -1,8 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@color/black">
 
     <GridView
         android:layout_width="match_parent"
@@ -20,5 +23,14 @@
         android:clickable="true"
         android:gravity="center"
         android:background="@color/black"/>
+
+    <TextView android:id="@+id/dvr_camera_list_no_items"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:textColor="@color/common_color_red"
+        android:textSize="36sp"
+        android:gravity="center"
+        tools:text="Error Message"
+        android:visibility="gone"/>
 
 </RelativeLayout>

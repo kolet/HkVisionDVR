@@ -109,27 +109,18 @@ public abstract class BaseDVRActivity extends Activity {
         @Override
         protected void onPostExecute(String result) {
             if (!result.equals("OK")) {
-                displayErrorMessage(result);
+                onDvrInitFailure(result);
                 return;
             }
 
             // Do something, like ask cameras to play
-            performAction();
+            onDvrInitSuccess();
         }
     }
 
+    protected abstract void onDvrInitFailure(String errorMessage);
+
     protected abstract void addCameras();
 
-    protected abstract void performAction();
-
-    private void displayErrorMessage(String errorMessage) {
-//        if (errorMessage == null) {
-//            textErrorMessage.setVisibility(View.GONE);
-//            textErrorMessage.setText("");
-//
-//        } else {
-//            textErrorMessage.setVisibility(View.VISIBLE);
-//            textErrorMessage.setText(errorMessage);
-//        }
-    }
+    protected abstract void onDvrInitSuccess();
 }

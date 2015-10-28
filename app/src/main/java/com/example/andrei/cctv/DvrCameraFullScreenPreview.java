@@ -2,6 +2,7 @@ package com.example.andrei.cctv;
 
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.view.View;
 import android.widget.TextView;
 
 import com.example.andrei.cctv.hikvision.DvrCamera;
@@ -109,6 +110,18 @@ public class DvrCameraFullScreenPreview extends BaseDVRActivity {
 //    }
 
     @Override
+    protected void onDvrInitFailure(String errorMessage) {
+        if (errorMessage == null) {
+            textErrorMessage.setVisibility(View.GONE);
+            textErrorMessage.setText("");
+
+        } else {
+            textErrorMessage.setVisibility(View.VISIBLE);
+            textErrorMessage.setText(errorMessage);
+        }
+    }
+
+    @Override
     protected void addCameras() {
         camera = new DvrCamera(cameraId, cameraName);
         camera.setCameraView(cameraView);
@@ -119,57 +132,10 @@ public class DvrCameraFullScreenPreview extends BaseDVRActivity {
     }
 
     @Override
-    protected void performAction() {
+    protected void onDvrInitSuccess() {
         if (camera != null) {
             camera.play();
         }
     }
 
-//    private class InitializeDvrManagerTask extends AsyncTask<Void, Void, String> {
-//        @Override
-//        protected String doInBackground(Void... params) {
-//            if (isCancelled()){
-//                return "OK";
-//            }
-//
-//            // Initialise Network SDK
-//            String errorMessage =  dvrManager.init();
-//
-//            if (errorMessage != null)
-//                return errorMessage;
-//
-//            // Log into the DVR
-//            errorMessage = dvrManager.login();
-//
-//            if (errorMessage != null)
-//                return errorMessage;
-//
-//            dvrManager.dumpUsefulInfo();
-//            return "OK";
-//        }
-//
-//        @Override
-//        protected void onPostExecute(String result) {
-//            if (result.equals("OK")) {
-//                if (dvrManager != null && camera != null) {
-//                    camera.play();
-//                }
-//
-//            } else {
-//                // Show the error message
-//                displayErrorMessage(result);
-//            }
-//        }
-//    }
-//
-//    private void displayErrorMessage(String errorMessage) {
-//        if (errorMessage == null) {
-//            textErrorMessage.setVisibility(View.GONE);
-//            textErrorMessage.setText("");
-//
-//        } else {
-//            textErrorMessage.setVisibility(View.VISIBLE);
-//            textErrorMessage.setText(errorMessage);
-//        }
-//    }
 }

@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.GridView;
+import android.widget.TextView;
 
 import com.example.andrei.cctv.hikvision.DvrCamera;
 import com.example.andrei.cctv.hikvision.DvrCameraArrayAdapter;
@@ -14,6 +15,7 @@ import java.util.ArrayList;
 public class DvrCamerasListActivity extends BaseDVRActivity {
 
     private GridView gridView;
+    private TextView textErrorMessage;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -21,6 +23,7 @@ public class DvrCamerasListActivity extends BaseDVRActivity {
         setContentView(R.layout.activity_dvr_cameras_list);
 
         gridView = (GridView) findViewById(R.id.gridview_dvr_camera_list);
+        textErrorMessage = (TextView) findViewById(R.id.dvr_camera_list_no_items);
     }
 
     @Override
@@ -45,7 +48,7 @@ public class DvrCamerasListActivity extends BaseDVRActivity {
     }
 
     @Override
-    protected void performAction() {
+    protected void onDvrInitSuccess() {
         DvrCameraArrayAdapter adapter = new DvrCameraArrayAdapter(this, R.layout.gridview_item_dvr_camera, cameras);
         gridView.setAdapter(adapter);
         gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -67,5 +70,11 @@ public class DvrCamerasListActivity extends BaseDVRActivity {
                 }
             }
         });
+    }
+
+    @Override
+    protected void onDvrInitFailure(String errorMessage) {
+        textErrorMessage.setVisibility(View.VISIBLE);
+        textErrorMessage.setText(errorMessage);
     }
 }

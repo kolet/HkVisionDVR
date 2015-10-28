@@ -49,7 +49,7 @@ public class HikVisionDvrManager {
     public String init() {
         // initialize SDK
         if (!hcNetSdk.NET_DVR_Init()) {
-            Log.e(TAG, "Failed to initialize SDK！ Error: " + getErrorMessage());
+            Log.e(TAG, "Failed to initialize SDK Error: " + getErrorMessage());
             return getErrorMessage();
         }
 
@@ -81,8 +81,24 @@ public class HikVisionDvrManager {
 
         if (userId < 0) {
             try {
-                if(retryLogin(5) == false) {
-                    errorMessage = "could not login into the DVR after multiple retries";
+                Log.e(TAG, "Trying to login again");
+
+                int count = 0;
+                while (count < 10) {
+                    userId = hcNetSdk.NET_DVR_Login_V30(DVR_IP, DVR_PORT, "test", "a123456789", dvrInfo);
+
+                    if (userId >0) {
+                        break;
+                    }
+
+                    count++;
+                    Thread.sleep(500);
+                }
+
+                // Still could not login
+                if (userId < 0) {
+                    errorMessage = "Tried to sign into the DVR " + count + " times - all failed!";
+                    Log.e(TAG, errorMessage);
                 }
 
             } catch (Exception e) {
@@ -95,32 +111,6 @@ public class HikVisionDvrManager {
         }
 
         return errorMessage;
-    }
-
-    private boolean retryLogin(int numOfRetries) throws Exception {
-        Log.e(TAG, "Trying to login again");
-
-        int count = 0;
-        while (count < numOfRetries) {
-            Log.i(TAG, "In the " + (count + 1) + " re login");
-            login();
-
-            if (userId < 0) {
-                count++;
-                Thread.sleep(200);
-            } else {
-                Log.i(TAG, "Article " + (count + 1) + " login successful");
-                break;
-            }
-        }
-
-        // Still could not login
-        if (userId < 0) {
-            Log.e(TAG, "Trying to sign " + count + " times - all failed！");
-            return false;
-        }
-
-        return true;
     }
 
     /**
