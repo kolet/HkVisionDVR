@@ -14,11 +14,11 @@
     </ProgressBar>
 
     <ImageView
-        android:id="@+id/grid_item_camera_view"
+        android:id="@+id/grid_item_image_no_video"
         android:layout_centerInParent="true"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:src="@drawable/icon_video_camera_red" />
+        android:src="@drawable/icon_no_video" />
 
     <TextView
         android:id="@+id/grid_item_camera_name"

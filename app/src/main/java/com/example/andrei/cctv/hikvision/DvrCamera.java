@@ -38,6 +38,13 @@ public class DvrCamera {
     public DvrCamera(int cameraId, String name) {
         this.cameraId = cameraId;
         this.name = name;
+        this.isConnected = false;
+    }
+
+    public DvrCamera(int cameraId, String name, boolean isConnected) {
+        this.cameraId = cameraId;
+        this.name = name;
+        this.isConnected = isConnected;
     }
 
     public int getCameraId() {

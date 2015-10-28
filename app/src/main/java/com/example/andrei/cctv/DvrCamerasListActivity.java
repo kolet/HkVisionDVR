@@ -2,7 +2,6 @@ package com.example.andrei.cctv;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.GridView;
@@ -12,10 +11,9 @@ import com.example.andrei.cctv.hikvision.DvrCameraArrayAdapter;
 
 import java.util.ArrayList;
 
-public class DvrCamerasListActivity extends AppCompatActivity {
+public class DvrCamerasListActivity extends BaseDVRActivity {
 
     private GridView gridView;
-    private ArrayList<DvrCamera> cameras;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -23,12 +21,33 @@ public class DvrCamerasListActivity extends AppCompatActivity {
         setContentView(R.layout.activity_dvr_cameras_list);
 
         gridView = (GridView) findViewById(R.id.gridview_dvr_camera_list);
+    }
 
-        setDummyData();
+    @Override
+    protected void onResume() {
+        super.onResume();
+        addCameras();
+    }
 
+    @Override
+    protected void addCameras() {
+        cameras = new ArrayList<>();
+
+        DvrCamera camera1 = new DvrCamera(1, "Working Cam", true);
+        DvrCamera camera2 = new DvrCamera(2, "Camera 2");
+        DvrCamera camera3 = new DvrCamera(1, "Camera 3");
+        DvrCamera camera4 = new DvrCamera(2, "Camera 4");
+
+        cameras.add(camera1);
+        cameras.add(camera2);
+        cameras.add(camera3);
+        cameras.add(camera4);
+    }
+
+    @Override
+    protected void performAction() {
         DvrCameraArrayAdapter adapter = new DvrCameraArrayAdapter(this, R.layout.gridview_item_dvr_camera, cameras);
         gridView.setAdapter(adapter);
-
         gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
@@ -43,26 +62,10 @@ public class DvrCamerasListActivity extends AppCompatActivity {
 
                     startActivity(intent);
 
+
                     //overridePendingTransition(R.anim.slide_activity_in_right, R.anim.slide_activity_out_right);
                 }
             }
         });
-
-    }
-
-    private void setDummyData() {
-        cameras = new ArrayList<>();
-
-        DvrCamera camera1 = new DvrCamera(1, "Working Cam");
-        DvrCamera camera2 = new DvrCamera(2, "Camera 2");
-        DvrCamera camera3 = new DvrCamera(1, "Camera 3");
-        DvrCamera camera4 = new DvrCamera(2, "Camera 4");
-
-        camera1.setIsConnected(true);
-
-        cameras.add(camera1);
-        cameras.add(camera2);
-        cameras.add(camera3);
-        cameras.add(camera4);
     }
 }

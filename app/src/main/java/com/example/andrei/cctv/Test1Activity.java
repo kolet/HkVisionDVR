@@ -32,9 +32,6 @@ public class Test1Activity extends Activity {
     private ArrayList<DvrCamera> cameras = new ArrayList<>();
     private final int CAMERAS_NUMBER = 4;
 
-    private ArrayList<DvrCameraSurfaceView> surfaceViews = new ArrayList<>();
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -42,9 +39,7 @@ public class Test1Activity extends Activity {
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_dvr_camera_streaming);
 
-        //textErrorMessage = (TextView) findViewById(R.id.text_dvr_error_message);
         parentLayout = (LinearLayout) findViewById(R.id.layout_dvr_camera_list);
-
         initCameras();
     }
 

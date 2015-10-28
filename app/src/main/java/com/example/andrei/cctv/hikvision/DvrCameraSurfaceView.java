@@ -51,7 +51,8 @@ public class DvrCameraSurfaceView extends SurfaceView implements SurfaceHolder.C
 
     /**
      * Starts streaming video from the DVR.
-     * @param channelId Camera Id
+     *
+     * @param channelId  Camera Id
      * @param mainStream Whether to show higher-resolution Main stream or lower-resolution Substream.
      */
     public void startPlaying(int channelId, boolean mainStream) {
@@ -171,7 +172,7 @@ public class DvrCameraSurfaceView extends SurfaceView implements SurfaceHolder.C
                         // The data called back at the first time is system header
                         if (!Player.getInstance().setStreamOpenMode(playPort, Player.STREAM_REALTIME)) {
                             Log.d(TAG, "setStreamOpenMode() failed!");
-                           break;
+                            break;
                         }
 
                         // Open the video openPlayer
