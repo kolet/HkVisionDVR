@@ -63,7 +63,7 @@ public class DvrCameraFullScreenPreview extends BaseDVRActivity {
     public void onBackPressed() {
         // Stop streaming properly
         super.tearDown();
-        finish();
+        DvrCameraFullScreenPreview.this.finish();
     }
 
     private void loadExtras() {

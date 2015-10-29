@@ -108,7 +108,7 @@ public class DvrCameraSurfaceView extends SurfaceView implements SurfaceHolder.C
             playPort = -1;
             playTagID = -1;
 
-            destroyDrawingCache();
+            //destroyDrawingCache();
         } catch (Exception e) {
             e.printStackTrace();
         }

@@ -15,17 +15,17 @@ public abstract class BaseDVRActivity extends Activity {
 
     protected ArrayList<DvrCamera> cameras = new ArrayList<>();
 
-//    @Override
-//    protected void onStart() {
-//        super.onStart();
-//        initDVR();
-//    }
-
     @Override
-    protected void onResume() {
-        super.onResume();
+    protected void onStart() {
+        super.onStart();
         initDVR();
     }
+
+//    @Override
+//    protected void onResume() {
+//        super.onResume();
+//        initDVR();
+//    }
 
     @Override
     protected void onPause() {

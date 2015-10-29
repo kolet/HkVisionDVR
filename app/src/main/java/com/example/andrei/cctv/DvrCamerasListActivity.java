@@ -1,5 +1,6 @@
 package com.example.andrei.cctv;
 
+import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
@@ -18,6 +19,7 @@ public class DvrCamerasListActivity extends BaseDVRActivity {
 
     private GridLayout gridLayout;
     private TextView textErrorMessage;
+    private DisplayMetrics outMetrics;
 
     private final int CAMERAS_NUMBER = 4;
     private final int NUM_OF_COLUMNS = 2;
@@ -37,17 +39,33 @@ public class DvrCamerasListActivity extends BaseDVRActivity {
         //textErrorMessage = (TextView) findViewById(R.id.dvr_camera_list_no_items);
 
         gridLayout = (GridLayout) findViewById(R.id.grid_dvr_cameras);
-        gridLayout.removeAllViews();
 
         // Calculate display dimensions - we will have two camera previews in a row
         Display display = getWindowManager().getDefaultDisplay();
-        DisplayMetrics outMetrics = new DisplayMetrics();
+        outMetrics = new DisplayMetrics();
 
         if (Build.VERSION.SDK_INT >= 17) {
             display.getRealMetrics(outMetrics);
         } else {
             display.getMetrics(outMetrics);
         }
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        addCamerasToGrid();
+        System.out.println("onResume again");
+    }
+
+    private void addCamerasToGrid() {
+        cameras.clear();
+        gridLayout.removeAllViews();
 
         gridLayout.setColumnCount(NUM_OF_COLUMNS);
         gridLayout.setRowCount(CAMERAS_NUMBER / NUM_OF_COLUMNS);
@@ -88,7 +106,12 @@ public class DvrCamerasListActivity extends BaseDVRActivity {
                 @Override
                 public void onClick(View v) {
                     DvrCameraSurfaceView cv = (DvrCameraSurfaceView) v;
-                    System.out.println("Camera ID " + cv.getCameraId());
+
+                    Intent intent = new Intent(DvrCamerasListActivity.this, DvrCameraFullScreenPreview.class);
+                    intent.putExtra(DvrCameraFullScreenPreview.EXTRA_CAMERA_ID,  cv.getCameraId());
+                    //intent.putExtra(DvrCameraFullScreenPreview.EXTRA_CAMERA_NAME, item.getName());
+
+                    startActivity(intent);
                 }
             });
 
