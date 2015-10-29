@@ -15,6 +15,8 @@ public abstract class BaseDVRActivity extends Activity {
 
     protected ArrayList<DvrCamera> cameras = new ArrayList<>();
 
+    private boolean isInitialised;
+
     @Override
     protected void onStart() {
         super.onStart();
@@ -30,17 +32,22 @@ public abstract class BaseDVRActivity extends Activity {
     @Override
     protected void onPause() {
         super.onPause();
+//        tearDown();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
         tearDown();
     }
 
-//    @Override
-//    protected void onStop() {
-//        super.onStop();
-//        tearDown();
-//    }
-
-
-//    @Override
+    //    @Override
 //    public void onBackPressed() {
 //        tearDown();
 //    }
@@ -65,22 +72,37 @@ public abstract class BaseDVRActivity extends Activity {
 
         // Release DVR SDK
         if (dvrManager != null) {
-            int playPort = -1;
+            int playPort = 0;
 
-            if (cameras.size() > 0) {
+            if (cameras != null && cameras.size() > 0) {
                 playPort = cameras.get(0).getPlayPort();
-
-                for (DvrCamera camera : cameras) {
-                    camera.stop();
-                    camera = null;
-                }
-
-                cameras.clear();
             }
+
+            clearCameras();
 
             dvrManager.logout(playPort);
             dvrManager = null;
+
+            isInitialised = false;
         }
+    }
+
+    protected void clearCameras() {
+        if (cameras == null || cameras.size() == 0) {
+            return;
+        }
+
+        for (DvrCamera camera : cameras) {
+            if (camera.getCameraView() != null) {
+                camera.getCameraView().stopPlaying();
+                camera.setCameraView(null);
+
+            }
+
+            camera = null;
+        }
+
+        cameras.clear();
     }
 
     private class InitializeDvrManagerTask extends AsyncTask<Void, Void, String> {
@@ -108,13 +130,15 @@ public abstract class BaseDVRActivity extends Activity {
 
         @Override
         protected void onPostExecute(String result) {
-            if (!result.equals("OK")) {
+            isInitialised = result.equals("OK");
+
+            if (!isInitialised) {
                 onDvrInitFailure(result);
                 return;
+            } else {
+                // Do something, like ask cameras to play
+                onDvrInitSuccess();
             }
-
-            // Do something, like ask cameras to play
-            onDvrInitSuccess();
         }
     }
 

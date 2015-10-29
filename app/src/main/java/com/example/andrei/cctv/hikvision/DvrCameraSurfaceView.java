@@ -76,6 +76,7 @@ public class DvrCameraSurfaceView extends SurfaceView implements SurfaceHolder.C
         // Preview parameter configuration
         NET_DVR_CLIENTINFO clientInfo = new NET_DVR_CLIENTINFO();
         clientInfo.lChannel = channelId;
+        // Main or sub-stream?
         clientInfo.lLinkMode = mainStream ? 0 : 0x80000000;
 
         // A multicast address, multicast preview configuration needs
@@ -83,6 +84,7 @@ public class DvrCameraSurfaceView extends SurfaceView implements SurfaceHolder.C
 
         int userId = HikVisionDvrManager.getInstance().getUserId();
 
+        // Start streaming from the DVR
         playTagID = hcNetSdk.NET_DVR_RealPlay_V30(userId, clientInfo, realplayCallback, true);
 
         if (playTagID < 0) {

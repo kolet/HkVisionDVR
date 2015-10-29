@@ -136,10 +136,10 @@ public class Test1Activity extends Activity {
                 // we could stop streaming
                 dvrManager.logout(cameras.get(0).getPlayPort());
 
-                for (DvrCamera camera : cameras) {
-                    camera.stop();
-                    camera = null;
-                }
+//                for (DvrCamera camera : cameras) {
+//                    camera.stop();
+//                    camera = null;
+//                }
             }
 
             dvrManager = null;

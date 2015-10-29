@@ -11,6 +11,7 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.GridLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.andrei.cctv.hikvision.DvrCamera;
 import com.example.andrei.cctv.hikvision.DvrCameraSurfaceView;
@@ -33,6 +34,7 @@ public class DvrCamerasListActivity extends BaseDVRActivity {
         setContentView(R.layout.activity_dvr_cameras_list);
 
         setupUI();
+        createCameraGrid();
     }
 
     private void setupUI() {
@@ -49,21 +51,12 @@ public class DvrCamerasListActivity extends BaseDVRActivity {
         } else {
             display.getMetrics(outMetrics);
         }
+
+
     }
 
-    @Override
-    protected void onStart() {
-        super.onStart();
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        addCamerasToGrid();
-        System.out.println("onResume again");
-    }
-
-    private void addCamerasToGrid() {
+    private void createCameraGrid() {
+        // Create a grid of cameras
         cameras.clear();
         gridLayout.removeAllViews();
 
@@ -117,10 +110,29 @@ public class DvrCamerasListActivity extends BaseDVRActivity {
 
             gridLayout.addView(cameraView);
         }
+
+        Toast.makeText(DvrCamerasListActivity.this, "Grid of cameras created", Toast.LENGTH_SHORT).show();
     }
+
+//    @Override
+//    protected void onStart() {
+//        super.onStart();
+//    }
+//
+//    @Override
+//    protected void onResume() {
+//        super.onResume();
+////        fillCameraGrid();
+//    }
+
 
     @Override
     protected void onDvrInitSuccess() {
+       if (cameras == null || cameras.size() == 0) {
+           Toast.makeText(DvrCamerasListActivity.this, "Cameras are not ready yet!", Toast.LENGTH_SHORT).show();
+           return;
+       }
+
         for (DvrCamera camera : cameras) {
             camera.play();
         }
