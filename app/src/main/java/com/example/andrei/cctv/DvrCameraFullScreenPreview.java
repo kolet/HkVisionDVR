@@ -50,8 +50,6 @@ public class DvrCameraFullScreenPreview extends Activity {
         cameraView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
             public void onGlobalLayout() {
-                Toast.makeText(DvrCameraFullScreenPreview.this, "VIEW is  READY!", Toast.LENGTH_SHORT).show();
-
                 // Camera view is ready
                 initDVR();
 
@@ -95,7 +93,10 @@ public class DvrCameraFullScreenPreview extends Activity {
 
     @Override
     public void onBackPressed() {
+        // Shutdown SDK
         safeClose();
+        DvrCameraFullScreenPreview.this.finish();
+
         super.onBackPressed();
     }
 
@@ -119,8 +120,6 @@ public class DvrCameraFullScreenPreview extends Activity {
             camera.stop();
             camera = null;
         }
-
-        DvrCameraFullScreenPreview.this.finish();
     }
 
     private class InitializeDvrManagerTask extends AsyncTask<Void, Void, String> {
@@ -151,8 +150,9 @@ public class DvrCameraFullScreenPreview extends Activity {
             if (result.equals("OK")) {
                 dvrManager.setInitialised(true);
 
-                Toast.makeText(DvrCameraFullScreenPreview.this, "Full Screen preview is ready", Toast.LENGTH_SHORT).show();
-                camera.play();
+                if (camera != null) {
+                    camera.play();
+                }
 
             } else {
                 dvrManager.setInitialised(false);

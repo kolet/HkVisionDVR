@@ -114,7 +114,7 @@ public class DvrCamera {
 
     public void play() {
         if (this.cameraView != null) {
-            this.cameraView.startPlaying(cameraId, showFullScreen);
+            this.cameraView.play(cameraId, showFullScreen);
         }
     }
 

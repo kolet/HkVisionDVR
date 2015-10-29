@@ -1,12 +1,15 @@
 package com.example.andrei.cctv;
 
+import android.app.Activity;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.view.Display;
 import android.view.Gravity;
 import android.view.View;
+import android.view.ViewTreeObserver;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.GridLayout;
@@ -15,10 +18,11 @@ import android.widget.Toast;
 
 import com.example.andrei.cctv.hikvision.DvrCamera;
 import com.example.andrei.cctv.hikvision.DvrCameraSurfaceView;
+import com.example.andrei.cctv.hikvision.HikVisionDvrManager;
 
 import java.util.ArrayList;
 
-public class DvrCamerasListActivity extends BaseDVRActivity {
+public class DvrCamerasListActivity extends Activity {
 
     private GridLayout gridLayout;
     private TextView textErrorMessage;
@@ -29,6 +33,8 @@ public class DvrCamerasListActivity extends BaseDVRActivity {
 
     protected ArrayList<DvrCamera> cameras = new ArrayList<>();
 
+    private HikVisionDvrManager dvrManager;
+    private InitializeDvrManagerTask mTask;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,7 +44,37 @@ public class DvrCamerasListActivity extends BaseDVRActivity {
         setContentView(R.layout.activity_dvr_cameras_list);
 
         setupUI();
-        createCameraGrid();
+    }
+
+//    @Override
+//    protected void onStart() {
+//        super.onStart();
+//        refreshGrid();
+//    }
+
+//    @Override
+//    protected void onStop() {
+//        safeClose();
+//        super.onStop();
+//    }
+
+    //    @Override
+//    protected void onStop() {
+//        safeClose();
+//        super.onStop();
+//    }
+
+
+    @Override
+    public void onBackPressed() {
+        safeClose();
+        super.onBackPressed();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        refreshGrid();
     }
 
     private void setupUI() {
@@ -54,9 +90,11 @@ public class DvrCamerasListActivity extends BaseDVRActivity {
         } else {
             display.getMetrics(outMetrics);
         }
+
+//        refreshGrid();
     }
 
-    private void createCameraGrid() {
+    private void refreshGrid() {
         // Create a grid of cameras
         clearCameras();
         gridLayout.removeAllViews();
@@ -96,26 +134,69 @@ public class DvrCamerasListActivity extends BaseDVRActivity {
             cameras.add(camera);
             cameraView.setCameraId(cameraId);
 
+            // Show full screen view on a camera click
             cameraView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    tearDown();
-                    clearCameras();
+                    safeClose();
 
                     DvrCameraSurfaceView cv = (DvrCameraSurfaceView) v;
 
                     Intent intent = new Intent(DvrCamerasListActivity.this, DvrCameraFullScreenPreview.class);
-                    intent.putExtra(DvrCameraFullScreenPreview.EXTRA_CAMERA_ID,  cv.getCameraId());
+                    intent.putExtra(DvrCameraFullScreenPreview.EXTRA_CAMERA_ID, cv.getCameraId());
                     //intent.putExtra(DvrCameraFullScreenPreview.EXTRA_CAMERA_NAME, item.getName());
 
                     startActivity(intent);
+                    finish();
                 }
             });
 
             gridLayout.addView(cameraView);
         }
 
-        Toast.makeText(DvrCamerasListActivity.this, "Grid of cameras created", Toast.LENGTH_SHORT).show();
+        // Initialise SDK only when the grid is ready
+        gridLayout.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+                initDVR();
+
+                gridLayout.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+            }
+        });
+    }
+
+    private void initDVR() {
+        dvrManager = HikVisionDvrManager.getInstance();
+
+        if (dvrManager.isInitialised())
+            return;
+
+        if (mTask != null && !mTask.getStatus().equals(AsyncTask.Status.FINISHED)) {
+            return;
+        }
+
+        // Log into the DVR only when required
+        mTask = new InitializeDvrManagerTask();
+        mTask.execute();
+    }
+
+    private void safeClose() {
+        if (mTask != null && !mTask.getStatus().equals(AsyncTask.Status.FINISHED)) {
+            mTask.cancel(true);
+            mTask = null;
+        }
+
+        // Shut down the SDK
+        int playPort = 0;
+
+        // Release DVR SDK
+        if (dvrManager != null) {
+            dvrManager.logout(playPort);
+            dvrManager = null;
+        }
+
+        // and stop all previews
+        clearCameras();
     }
 
     protected void clearCameras() {
@@ -131,55 +212,56 @@ public class DvrCamerasListActivity extends BaseDVRActivity {
         cameras.clear();
     }
 
-//    @Override
-//    protected void onStart() {
-//        super.onStart();
-//    }
-//
-//    @Override
-//    protected void onResume() {
-//        super.onResume();
-////        fillCameraGrid();
-//    }
+    private class InitializeDvrManagerTask extends AsyncTask<Void, Void, String> {
+        @Override
+        protected String doInBackground(Void... params) {
+            if (isCancelled()) {
+                return "OK";
+            }
 
-    @Override
-    protected void onDvrInitSuccess() {
-       if (cameras == null || cameras.size() == 0) {
-           // TODO: fallback gracefully
-           Toast.makeText(DvrCamerasListActivity.this, "Cameras are not ready yet!", Toast.LENGTH_SHORT).show();
-           return;
-       }
+            // Initialise Network SDK
+            String errorMessage = dvrManager.init();
 
-        for (DvrCamera camera : cameras) {
-            camera.play();
+            if (errorMessage != null)
+                return errorMessage;
+
+            // Log into the DVR
+            errorMessage = dvrManager.login();
+
+            if (errorMessage != null)
+                return errorMessage;
+
+            //dvrManager.dumpUsefulInfo();
+            return "OK";
         }
 
+        @Override
+        protected void onPostExecute(String result) {
+            if (result.equals("OK")) {
+                dvrManager.setInitialised(true);
+                onDvrInitSuccess();
+            } else {
+                dvrManager.setInitialised(false);
+                onDvrInitFailure(result);
+            }
+        }
 
-//        gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-//            @Override
-//            public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
-//                DvrCamera item = (DvrCamera) adapterView.getItemAtPosition(position);
-//
-//                // Only show the full-screen camera preview if it is connected
-//                if (item.isConnected()) {
-//                    Intent intent = new Intent(DvrCamerasListActivity.this, DvrCameraFullScreenPreview.class);
-//
-//                    intent.putExtra(DvrCameraFullScreenPreview.EXTRA_CAMERA_ID, item.getCameraId());
-//                    intent.putExtra(DvrCameraFullScreenPreview.EXTRA_CAMERA_NAME, item.getName());
-//
-//                    startActivity(intent);
-//
-//
-//                    //overridePendingTransition(R.anim.slide_activity_in_right, R.anim.slide_activity_out_right);
-//                }
-//            }
-//        });
-    }
+        private void onDvrInitSuccess() {
+            if (cameras == null || cameras.size() == 0) {
+                // TODO: fallback gracefully
+                Toast.makeText(DvrCamerasListActivity.this, "Cameras are not ready yet!", Toast.LENGTH_SHORT).show();
+                return;
+            }
 
-    @Override
-    protected void onDvrInitFailure(String errorMessage) {
-        Toast.makeText(DvrCamerasListActivity.this, "ERROR: " + errorMessage, Toast.LENGTH_SHORT).show();
+            for (DvrCamera camera : cameras) {
+                camera.play();
+            }
+        }
+
+        private void onDvrInitFailure(String errorMessage) {
+            Toast.makeText(DvrCamerasListActivity.this, "ERROR: " + errorMessage, Toast.LENGTH_SHORT).show();
 //        textErrorMessage.setVisibility(View.VISIBLE);
 //        textErrorMessage.setText(errorMessage);
+        }
     }
 }

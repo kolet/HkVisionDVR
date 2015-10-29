@@ -70,7 +70,7 @@ public class DvrCameraSurfaceView extends SurfaceView implements SurfaceHolder.C
      * @param channelId  Camera Id
      * @param mainStream Whether to show higher-resolution Main stream or lower-resolution Substream.
      */
-    public void startPlaying(int channelId, boolean mainStream) {
+    public void play(int channelId, boolean mainStream) {
         playPort = Player.getInstance().getPort();
 
         // Preview parameter configuration
@@ -119,6 +119,7 @@ public class DvrCameraSurfaceView extends SurfaceView implements SurfaceHolder.C
     @Override
     public void surfaceCreated(SurfaceHolder holder) {
         if (playPort < 0) return;
+        if (!holder.getSurface().isValid()) return;
 
         // There's a short delay between the start of the activity and the initialization
         // of the SurfaceHolder that backs the SurfaceView.  We don't want to try to
@@ -131,6 +132,7 @@ public class DvrCameraSurfaceView extends SurfaceView implements SurfaceHolder.C
     @Override
     public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
         if (playPort < 0) return;
+        if (!holder.getSurface().isValid()) return;
 
         if (!Player.getInstance().setVideoWindow(playPort, 0, null)) {
             System.out.println("player release video window failed!");
@@ -195,7 +197,7 @@ public class DvrCameraSurfaceView extends SurfaceView implements SurfaceHolder.C
                     case HCNetSDK.NET_DVR_STD_VIDEODATA:
                     case HCNetSDK.NET_DVR_STD_AUDIODATA:
                         if (bufferSize > 0 && playPort != -1) {
-                            // When we stop streaming, it is not instantaneous; skip outputing to a wrong port
+                            // stream data
                             if (!Player.getInstance().inputData(playPort, buffer, bufferSize)) {
                                 Log.d(TAG, "Streaming data failed: " + getErrorMessage() + ". PlayPort=" + playPort);
                             }
