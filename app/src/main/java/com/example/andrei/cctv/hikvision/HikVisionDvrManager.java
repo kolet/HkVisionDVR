@@ -126,6 +126,8 @@ public class HikVisionDvrManager {
 
             hcNetSdk.NET_DVR_Cleanup();
 
+            isInitialised = false;
+
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -222,58 +224,16 @@ public class HikVisionDvrManager {
 //        }
 //    };
 
-//    private RealPlayCallBack realplayCallback = new RealPlayCallBack() {
-//        /**
-//         * Video openPlayer decoding.
-//         *
-//         * @param handle     current preview handler
-//         * @param dataType   The iDataType data type
-//         * @param buffer     PDataBuffer store data buffer pointer
-//         * @param bufferSize IDataSize buffer size
-//         */
-//        @Override
-//        public void fRealDataCallBack(int handle, int dataType, byte[] buffer, int bufferSize) {
-//            if (bufferSize == 0) {
-//                Log.d(TAG, "Play buffer is empty, skipping...");
-//                return;
-//            }
-//
-//            if (cameras == null || cameras.size() == 0) {
-//                // No available cameras
-//                return;
-//            }
-//
-//            DvrCamera cam = cameras.get(currentCamera - 1);
-//
-//            if (cam == null) {
-//                return;
-//            }
-//
-//            DvrCameraSurfaceView playerView = cam.getCameraView();
-//
-//            try {
-//                switch (dataType) {
-//                    case HCNetSDK.NET_DVR_SYSHEAD:
-//
-//                        if (!playerView.openPlayer(buffer, bufferSize)) {
-//                            Log.d(TAG, "Open player failed.");
-//                        }
-//
-//                        break;
-//
-//                    case HCNetSDK.NET_DVR_STREAMDATA:
-//                    case HCNetSDK.NET_DVR_STD_VIDEODATA:
-//                    case HCNetSDK.NET_DVR_STD_AUDIODATA:
-//                        playerView.streamData(buffer, bufferSize);
-//                        break;
-//                }
-//
-//            } catch (Exception ex) {
-//                System.out.println(ex.getMessage());
-//                Log.e(TAG, ex.getMessage());
-//            }
-//        }
-//    };
+
+    private boolean isInitialised;
+
+    public boolean isInitialised() {
+        return isInitialised;
+    }
+
+    public synchronized void setInitialised(boolean isInitialised) {
+        this.isInitialised = isInitialised;
+    }
 
     public int getUserId() {
         return this.userId;

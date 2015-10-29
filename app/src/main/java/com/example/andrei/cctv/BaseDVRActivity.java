@@ -15,8 +15,6 @@ public abstract class BaseDVRActivity extends Activity {
 
     protected ArrayList<DvrCamera> cameras = new ArrayList<>();
 
-    private boolean isInitialised;
-
     @Override
     protected void onStart() {
         super.onStart();
@@ -70,20 +68,19 @@ public abstract class BaseDVRActivity extends Activity {
             mTask = null;
         }
 
+        // Remove all cameras
+        int playPort = 0;
+
+        if (cameras != null && cameras.size() > 0) {
+            playPort = cameras.get(0).getPlayPort();
+        }
+
+        clearCameras();
+
         // Release DVR SDK
         if (dvrManager != null) {
-            int playPort = 0;
-
-            if (cameras != null && cameras.size() > 0) {
-                playPort = cameras.get(0).getPlayPort();
-            }
-
-            clearCameras();
-
             dvrManager.logout(playPort);
             dvrManager = null;
-
-            isInitialised = false;
         }
     }
 
@@ -130,19 +127,15 @@ public abstract class BaseDVRActivity extends Activity {
 
         @Override
         protected void onPostExecute(String result) {
-            isInitialised = result.equals("OK");
-
-            if (!isInitialised) {
-                onDvrInitFailure(result);
-                return;
-            } else {
-                // Do something, like ask cameras to play
+            if (result.equals("OK")) {
+                dvrManager.setInitialised(true);
                 onDvrInitSuccess();
+            } else {
+                dvrManager.setInitialised(false);
+                onDvrInitFailure(result);
             }
         }
     }
-
-//    protected abstract void addCamera();
 
     protected abstract void onDvrInitSuccess();
 
