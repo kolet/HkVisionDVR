@@ -94,6 +94,8 @@ public class DvrCameraSurfaceView extends SurfaceView implements SurfaceHolder.C
     }
 
     public void stopPlaying() {
+        if (playPort == -1) return;
+
         try {
             if (!Player.getInstance().stop(playPort)) {
                 Log.e(TAG, "Stop the play failed！");

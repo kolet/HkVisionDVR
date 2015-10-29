@@ -2,7 +2,6 @@ package com.example.andrei.cctv.hikvision;
 
 import android.util.Log;
 
-import com.example.andrei.cctv.utils.DebugTools;
 import com.hikvision.netsdk.ExceptionCallBack;
 import com.hikvision.netsdk.HCNetSDK;
 import com.hikvision.netsdk.NET_DVR_DEVICEINFO_V30;
@@ -15,8 +14,6 @@ public class HikVisionDvrManager {
     // TODO: Move this to DvrDeviceInfo
     private static final String DVR_IP = "192.168.1.10";
     private static final int DVR_PORT = 8000;
-
-    private static DvrDeviceInfo deviceInfo;
 
     private static HikVisionDvrManager manager = null;
     private static HCNetSDK hcNetSdk = new HCNetSDK();
@@ -34,7 +31,6 @@ public class HikVisionDvrManager {
         if (manager == null) {
             synchronized (HikVisionDvrManager.class) {
                 manager = new HikVisionDvrManager();
-                deviceInfo = new DvrDeviceInfo();
             }
         }
 
@@ -77,40 +73,45 @@ public class HikVisionDvrManager {
         String errorMessage = null;
 
         // TODO: Server and Login details must be stored somewhere
-        userId = hcNetSdk.NET_DVR_Login_V30(DVR_IP, DVR_PORT, "test", "a123456789", dvrInfo);
+        userId = hcNetSdk.NET_DVR_Login_V30(DVR_IP, DVR_PORT, "admin", "Abcd1234", dvrInfo);
 
         if (userId < 0) {
-            try {
-                Log.e(TAG, "Trying to login again");
-
-                int count = 0;
-                while (count < 10) {
-                    userId = hcNetSdk.NET_DVR_Login_V30(DVR_IP, DVR_PORT, "test", "a123456789", dvrInfo);
-
-                    if (userId >0) {
-                        break;
-                    }
-
-                    count++;
-                    Thread.sleep(500);
-                }
-
-                // Still could not login
-                if (userId < 0) {
-                    errorMessage = "Tried to sign into the DVR " + count + " times - all failed!";
-                    Log.e(TAG, errorMessage);
-                }
-
-            } catch (Exception e) {
-                e.printStackTrace();
-                errorMessage = getErrorMessage();
-            }
-        } else {
-            // we logged in successfully
-            saveDeviceParameters(dvrInfo);
+            errorMessage = "Failed to login to DVR.";
         }
 
         isInitialised = errorMessage == null;
+
+        return errorMessage;
+    }
+
+    private String retryLogin(NET_DVR_DEVICEINFO_V30 dvrInfo, int attempts) {
+        String errorMessage = null;
+
+        try {
+            Log.e(TAG, "Trying to login again");
+
+            int count = 1;
+            while (count <= attempts) {
+                userId = hcNetSdk.NET_DVR_Login_V30(DVR_IP, DVR_PORT, "test", "a123456789", dvrInfo);
+
+                if (userId > 0) {
+                    break;
+                }
+
+                count++;
+                Thread.sleep(500);
+            }
+
+            // Still could not login
+            if (userId < 0) {
+                Log.e(TAG, "Tried to sign into the DVR " + count + " times - all failed!");
+                errorMessage = "Failed to login to DVR.";
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            errorMessage = getErrorMessage();
+        }
 
         return errorMessage;
     }
@@ -133,25 +134,6 @@ public class HikVisionDvrManager {
         } catch (Exception e) {
             e.printStackTrace();
         }
-    }
-
-    private void saveDeviceParameters(NET_DVR_DEVICEINFO_V30 info) {
-        if (info == null) return;
-
-        DebugTools.dump(info);
-
-        deviceInfo.channelNumber = info.byChanNum;
-        deviceInfo.startChannel = info.byStartChan;
-
-//        // Get device serial number
-//        byte[] sbbyte = info.sSerialNumber;
-//
-//        String serialNumber = "";
-//        for (int i = 0; i < sbbyte.length; i++) {
-//            serialNumber += String.valueOf(sbbyte[i]);
-//        }
-//
-//        deviceInfo.serialNumber = serialNumber;
     }
 
     public void dumpUsefulInfo() {
@@ -178,7 +160,17 @@ public class HikVisionDvrManager {
 //        }
 //
 //        DebugTools.dump(ipParaCfg);
-        Log.i(TAG, getErrorMessage());
+
+        //        // Get device serial number
+//        byte[] sbbyte = info.sSerialNumber;
+//
+//        String serialNumber = "";
+//        for (int i = 0; i < sbbyte.length; i++) {
+//            serialNumber += String.valueOf(sbbyte[i]);
+//        }
+//
+//        deviceInfo.serialNumber = serialNumber;
+
 
         //	        for ( NET_DVR_IPDEVINFO_V31 entry : ipParaCfg.struIPDevInfo ) {
 //

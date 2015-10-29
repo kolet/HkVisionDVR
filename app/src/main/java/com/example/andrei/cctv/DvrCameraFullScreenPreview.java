@@ -138,7 +138,7 @@ public class DvrCameraFullScreenPreview extends Activity {
                 return errorMessage;
 
             // Log into the DVR
-            errorMessage = dvrManager.login();
+            errorMessage = dvrManager.login(/*"192.168.1.10", 8000, "test", "a1234564789"*/);
 
             if (errorMessage != null)
                 return errorMessage;

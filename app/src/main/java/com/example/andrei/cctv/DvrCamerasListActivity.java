@@ -2,19 +2,20 @@ package com.example.andrei.cctv;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.design.widget.CoordinatorLayout;
+import android.support.design.widget.Snackbar;
 import android.util.DisplayMetrics;
 import android.view.Display;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewTreeObserver;
-import android.view.Window;
-import android.view.WindowManager;
 import android.widget.GridLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.example.andrei.cctv.hikvision.DvrCamera;
 import com.example.andrei.cctv.hikvision.DvrCameraSurfaceView;
@@ -25,6 +26,8 @@ import java.util.ArrayList;
 public class DvrCamerasListActivity extends Activity {
 
     private GridLayout gridLayout;
+    private CoordinatorLayout coordinatorLayout;
+    private ProgressBar progressBar;
     private TextView textErrorMessage;
     private DisplayMetrics outMetrics;
 
@@ -39,8 +42,8 @@ public class DvrCamerasListActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        requestWindowFeature(Window.FEATURE_NO_TITLE);
-        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+//        requestWindowFeature(Window.FEATURE_NO_TITLE);
+//        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_dvr_cameras_list);
 
         setupUI();
@@ -64,7 +67,6 @@ public class DvrCamerasListActivity extends Activity {
 //        super.onStop();
 //    }
 
-
     @Override
     public void onBackPressed() {
         safeClose();
@@ -78,8 +80,9 @@ public class DvrCamerasListActivity extends Activity {
     }
 
     private void setupUI() {
-        //textErrorMessage = (TextView) findViewById(R.id.dvr_camera_list_no_items);
-        gridLayout = (GridLayout) findViewById(R.id.grid_dvr_cameras);
+        coordinatorLayout = (CoordinatorLayout) findViewById(R.id.dvr_cameras_coordinator_layout);
+        progressBar = (ProgressBar) findViewById(R.id.progress_dvr_cameras);
+        gridLayout = (GridLayout) findViewById(R.id.dvr_cameras_grid);
 
         // Calculate display dimensions - we will have two camera previews in a row
         Display display = getWindowManager().getDefaultDisplay();
@@ -213,6 +216,12 @@ public class DvrCamerasListActivity extends Activity {
     }
 
     private class InitializeDvrManagerTask extends AsyncTask<Void, Void, String> {
+
+        @Override
+        protected void onPreExecute() {
+            progressBar.setVisibility(View.VISIBLE);
+        }
+
         @Override
         protected String doInBackground(Void... params) {
             if (isCancelled()) {
@@ -226,7 +235,7 @@ public class DvrCamerasListActivity extends Activity {
                 return errorMessage;
 
             // Log into the DVR
-            errorMessage = dvrManager.login();
+            errorMessage = dvrManager.login(/*"192.168.1.10", 8000, "test", "a123456789"*/);
 
             if (errorMessage != null)
                 return errorMessage;
@@ -236,32 +245,38 @@ public class DvrCamerasListActivity extends Activity {
         }
 
         @Override
-        protected void onPostExecute(String result) {
-            if (result.equals("OK")) {
+        protected void onPostExecute(String message) {
+            progressBar.setVisibility(View.GONE);
+
+            if (message.equals("OK")) {
                 dvrManager.setInitialised(true);
                 onDvrInitSuccess();
             } else {
                 dvrManager.setInitialised(false);
-                onDvrInitFailure(result);
+                onDvrInitFailure(message);
             }
         }
 
         private void onDvrInitSuccess() {
-            if (cameras == null || cameras.size() == 0) {
-                // TODO: fallback gracefully
-                Toast.makeText(DvrCamerasListActivity.this, "Cameras are not ready yet!", Toast.LENGTH_SHORT).show();
-                return;
-            }
-
             for (DvrCamera camera : cameras) {
                 camera.play();
             }
         }
 
         private void onDvrInitFailure(String errorMessage) {
-            Toast.makeText(DvrCamerasListActivity.this, "ERROR: " + errorMessage, Toast.LENGTH_SHORT).show();
-//        textErrorMessage.setVisibility(View.VISIBLE);
-//        textErrorMessage.setText(errorMessage);
+            Snackbar snackbar = Snackbar.make(coordinatorLayout, errorMessage, Snackbar.LENGTH_INDEFINITE)
+                    .setAction("RETRY", new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            initDVR();
+                        }
+                    })
+                    .setActionTextColor(Color.WHITE);
+
+            View view = snackbar.getView();
+            view.setBackgroundColor(getResources().getColor(R.color.bg_title_stroke_color));
+
+            snackbar.show();
         }
     }
 }
