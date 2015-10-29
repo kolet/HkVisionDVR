@@ -118,4 +118,10 @@ public class DvrCamera {
         }
     }
 
+    public void stop() {
+        if (this.cameraView != null) {
+            this.cameraView.stopPlaying();
+            this.cameraView = null;
+        }
+    }
 }

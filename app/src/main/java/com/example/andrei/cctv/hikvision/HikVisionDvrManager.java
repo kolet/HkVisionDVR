@@ -110,6 +110,8 @@ public class HikVisionDvrManager {
             saveDeviceParameters(dvrInfo);
         }
 
+        isInitialised = errorMessage == null;
+
         return errorMessage;
     }
 

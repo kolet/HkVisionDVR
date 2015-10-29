@@ -3,17 +3,12 @@ package com.example.andrei.cctv;
 import android.app.Activity;
 import android.os.AsyncTask;
 
-import com.example.andrei.cctv.hikvision.DvrCamera;
 import com.example.andrei.cctv.hikvision.HikVisionDvrManager;
-
-import java.util.ArrayList;
 
 public abstract class BaseDVRActivity extends Activity {
 
     private HikVisionDvrManager dvrManager;
     private InitializeDvrManagerTask mTask;
-
-    protected ArrayList<DvrCamera> cameras = new ArrayList<>();
 
     @Override
     protected void onStart() {
@@ -34,15 +29,9 @@ public abstract class BaseDVRActivity extends Activity {
     }
 
     @Override
-    protected void onStop() {
-        super.onStop();
-
-    }
-
-    @Override
     protected void onDestroy() {
         super.onDestroy();
-        tearDown();
+        //tearDown();
     }
 
     //    @Override
@@ -53,10 +42,14 @@ public abstract class BaseDVRActivity extends Activity {
     private void initDVR() {
         dvrManager = HikVisionDvrManager.getInstance();
 
+        if (dvrManager.isInitialised())
+            return;
+
         if (mTask != null && !mTask.getStatus().equals(AsyncTask.Status.FINISHED)) {
             return;
         }
 
+        // Log into the DVR only when required
         mTask = new InitializeDvrManagerTask();
         mTask.execute();
     }
@@ -71,35 +64,11 @@ public abstract class BaseDVRActivity extends Activity {
         // Remove all cameras
         int playPort = 0;
 
-        if (cameras != null && cameras.size() > 0) {
-            playPort = cameras.get(0).getPlayPort();
-        }
-
-        clearCameras();
-
         // Release DVR SDK
         if (dvrManager != null) {
             dvrManager.logout(playPort);
             dvrManager = null;
         }
-    }
-
-    protected void clearCameras() {
-        if (cameras == null || cameras.size() == 0) {
-            return;
-        }
-
-        for (DvrCamera camera : cameras) {
-            if (camera.getCameraView() != null) {
-                camera.getCameraView().stopPlaying();
-                camera.setCameraView(null);
-
-            }
-
-            camera = null;
-        }
-
-        cameras.clear();
     }
 
     private class InitializeDvrManagerTask extends AsyncTask<Void, Void, String> {

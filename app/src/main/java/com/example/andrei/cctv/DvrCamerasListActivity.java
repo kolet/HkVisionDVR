@@ -16,6 +16,8 @@ import android.widget.Toast;
 import com.example.andrei.cctv.hikvision.DvrCamera;
 import com.example.andrei.cctv.hikvision.DvrCameraSurfaceView;
 
+import java.util.ArrayList;
+
 public class DvrCamerasListActivity extends BaseDVRActivity {
 
     private GridLayout gridLayout;
@@ -24,6 +26,8 @@ public class DvrCamerasListActivity extends BaseDVRActivity {
 
     private final int CAMERAS_NUMBER = 4;
     private final int NUM_OF_COLUMNS = 2;
+
+    protected ArrayList<DvrCamera> cameras = new ArrayList<>();
 
 
     @Override
@@ -39,7 +43,6 @@ public class DvrCamerasListActivity extends BaseDVRActivity {
 
     private void setupUI() {
         //textErrorMessage = (TextView) findViewById(R.id.dvr_camera_list_no_items);
-
         gridLayout = (GridLayout) findViewById(R.id.grid_dvr_cameras);
 
         // Calculate display dimensions - we will have two camera previews in a row
@@ -51,13 +54,11 @@ public class DvrCamerasListActivity extends BaseDVRActivity {
         } else {
             display.getMetrics(outMetrics);
         }
-
-
     }
 
     private void createCameraGrid() {
         // Create a grid of cameras
-        cameras.clear();
+        clearCameras();
         gridLayout.removeAllViews();
 
         gridLayout.setColumnCount(NUM_OF_COLUMNS);
@@ -98,6 +99,9 @@ public class DvrCamerasListActivity extends BaseDVRActivity {
             cameraView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    tearDown();
+                    clearCameras();
+
                     DvrCameraSurfaceView cv = (DvrCameraSurfaceView) v;
 
                     Intent intent = new Intent(DvrCamerasListActivity.this, DvrCameraFullScreenPreview.class);
@@ -114,6 +118,19 @@ public class DvrCamerasListActivity extends BaseDVRActivity {
         Toast.makeText(DvrCamerasListActivity.this, "Grid of cameras created", Toast.LENGTH_SHORT).show();
     }
 
+    protected void clearCameras() {
+        if (cameras == null || cameras.size() == 0) {
+            return;
+        }
+
+        for (DvrCamera camera : cameras) {
+            camera.stop();
+            camera = null;
+        }
+
+        cameras.clear();
+    }
+
 //    @Override
 //    protected void onStart() {
 //        super.onStart();
@@ -125,10 +142,10 @@ public class DvrCamerasListActivity extends BaseDVRActivity {
 ////        fillCameraGrid();
 //    }
 
-
     @Override
     protected void onDvrInitSuccess() {
        if (cameras == null || cameras.size() == 0) {
+           // TODO: fallback gracefully
            Toast.makeText(DvrCamerasListActivity.this, "Cameras are not ready yet!", Toast.LENGTH_SHORT).show();
            return;
        }
@@ -161,6 +178,7 @@ public class DvrCamerasListActivity extends BaseDVRActivity {
 
     @Override
     protected void onDvrInitFailure(String errorMessage) {
+        Toast.makeText(DvrCamerasListActivity.this, "ERROR: " + errorMessage, Toast.LENGTH_SHORT).show();
 //        textErrorMessage.setVisibility(View.VISIBLE);
 //        textErrorMessage.setText(errorMessage);
     }

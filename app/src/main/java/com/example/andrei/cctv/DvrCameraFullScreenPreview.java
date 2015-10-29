@@ -1,20 +1,24 @@
 package com.example.andrei.cctv;
 
+import android.app.Activity;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.view.View;
+import android.view.ViewTreeObserver;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.andrei.cctv.hikvision.DvrCamera;
 import com.example.andrei.cctv.hikvision.DvrCameraSurfaceView;
+import com.example.andrei.cctv.hikvision.HikVisionDvrManager;
 
-public class DvrCameraFullScreenPreview extends BaseDVRActivity {
+public class DvrCameraFullScreenPreview extends Activity {
 
     public static final String EXTRA_CAMERA_ID = "CameraID";
     public static final String EXTRA_CAMERA_NAME = "CameraName";
 
-//    private HikVisionDvrManager dvrManager;
-//    private InitializeDvrManagerTask mTask;
+    private HikVisionDvrManager dvrManager;
+    private InitializeDvrManagerTask mTask;
 
     private DvrCamera camera;
     private DvrCameraSurfaceView cameraView;
@@ -32,38 +36,34 @@ public class DvrCameraFullScreenPreview extends BaseDVRActivity {
 //        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_dvr_camera_full_screen_preview);
 
-        cameraView = (DvrCameraSurfaceView) findViewById(R.id.dvr_camera_full_screen_camera_view);
+        setupUI();
+        loadExtras();
+    }
+
+    private void setupUI() {
         textCameraName = (TextView) findViewById(R.id.dvr_camera_full_screen_camera_name);
         textErrorMessage = (TextView) findViewById(R.id.dvr_camera_full_screen_message);
 
-        loadExtras();
+        cameraView = (DvrCameraSurfaceView) findViewById(R.id.dvr_camera_full_screen_camera_view);
 
-        // Add Camera to DVR
-        camera = new DvrCamera(cameraId, cameraName);
-        camera.setCameraView(cameraView);
-        camera.setShowFullScreen(true);
-        camera.setIsConnected(true);
+        // HikVision SDK can be initialised before the actual camera surface is ready
+        cameraView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+                Toast.makeText(DvrCameraFullScreenPreview.this, "VIEW is  READY!", Toast.LENGTH_SHORT).show();
 
-        cameras.add(camera);
-    }
+                // Camera view is ready
+                initDVR();
 
-//    @Override
-//    protected void onStart() {
-//        super.onStart();
-//        initDVR();
-//    }
-//
-//    @Override
-//    protected void onStop() {
-//        super.onStop();
-//        tearDown();
-//    }
-//
-    @Override
-    public void onBackPressed() {
-        // Stop streaming properly
-        super.tearDown();
-        DvrCameraFullScreenPreview.this.finish();
+                camera = new DvrCamera(cameraId, cameraName);
+                camera.setCameraView(cameraView);
+                camera.setShowFullScreen(true);
+                camera.setIsConnected(true);
+
+                // remove the listener as it is no longer required
+                cameraView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+            }
+        });
     }
 
     private void loadExtras() {
@@ -72,67 +72,92 @@ public class DvrCameraFullScreenPreview extends BaseDVRActivity {
         if (extras != null) {
             cameraId = extras.getInt(EXTRA_CAMERA_ID);
 
-            cameraName = TextUtils.isEmpty(extras.getString(EXTRA_CAMERA_NAME)) ? "NONAME" : extras.getString(EXTRA_CAMERA_NAME);
+            cameraName = TextUtils.isEmpty(extras.getString(EXTRA_CAMERA_NAME)) ? "" : extras.getString(EXTRA_CAMERA_NAME);
             textCameraName.setText(cameraName);
         }
     }
-//
-//    private void initDVR() {
-//        dvrManager = HikVisionDvrManager.getInstance();
-//
-//        camera = new DvrCamera(cameraId, cameraName);
-//        camera.setCameraView(cameraView);
-//        camera.setShowFullScreen(true);
-//        camera.setIsConnected(true);
-//
-//        if (mTask != null && !mTask.getStatus().equals(AsyncTask.Status.FINISHED)) {
-//            return;
-//        }
-//
-//        mTask = new InitializeDvrManagerTask();
-//        mTask.execute();
-//    }
 
-//    private void tearDown() {
-//        // Cancel DVR SDK initialisation, if it is happening
-//        if (mTask != null && !mTask.getStatus().equals(AsyncTask.Status.FINISHED)) {
-//            mTask.cancel(true);
-//            mTask = null;
-//        }
-//
-//        // Release DVR SDK
-//        if (dvrManager != null) {
-//            int playPort = camera.getPlayPort();
-//
-//            if (camera != null) {
-//                camera.stop();
-//                camera = null;
-//            }
-//
-//            dvrManager.logout(playPort);
-//            dvrManager = null;
-//        }
-//
-//        finish();
-//    }
+    private void initDVR() {
+        dvrManager = HikVisionDvrManager.getInstance();
 
-    @Override
-    protected void onDvrInitFailure(String errorMessage) {
-        if (errorMessage == null) {
-            textErrorMessage.setVisibility(View.GONE);
-            textErrorMessage.setText("");
+        if (dvrManager.isInitialised())
+            return;
 
-        } else {
-            textErrorMessage.setVisibility(View.VISIBLE);
-            textErrorMessage.setText(errorMessage);
+        if (mTask != null && !mTask.getStatus().equals(AsyncTask.Status.FINISHED)) {
+            return;
         }
+
+        // Log into the DVR only when required
+        mTask = new InitializeDvrManagerTask();
+        mTask.execute();
     }
 
+
     @Override
-    protected void onDvrInitSuccess() {
+    public void onBackPressed() {
+        safeClose();
+        super.onBackPressed();
+    }
+
+    private void safeClose() {
+        // Stop streaming properly
+        if (mTask != null && !mTask.getStatus().equals(AsyncTask.Status.FINISHED)) {
+            mTask.cancel(true);
+            mTask = null;
+        }
+
+        int playPort = 0;
+
+        // Release DVR SDK
+        if (dvrManager != null) {
+            dvrManager.logout(playPort);
+            dvrManager = null;
+        }
+
+        // Remove the camera
         if (camera != null) {
-            camera.play();
+            camera.stop();
+            camera = null;
         }
+
+        DvrCameraFullScreenPreview.this.finish();
     }
 
+    private class InitializeDvrManagerTask extends AsyncTask<Void, Void, String> {
+        @Override
+        protected String doInBackground(Void... params) {
+            if (isCancelled()) {
+                return "OK";
+            }
+
+            // Initialise Network SDK
+            String errorMessage = dvrManager.init();
+
+            if (errorMessage != null)
+                return errorMessage;
+
+            // Log into the DVR
+            errorMessage = dvrManager.login();
+
+            if (errorMessage != null)
+                return errorMessage;
+
+            //dvrManager.dumpUsefulInfo();
+            return "OK";
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+            if (result.equals("OK")) {
+                dvrManager.setInitialised(true);
+
+                Toast.makeText(DvrCameraFullScreenPreview.this, "Full Screen preview is ready", Toast.LENGTH_SHORT).show();
+                camera.play();
+
+            } else {
+                dvrManager.setInitialised(false);
+                Toast.makeText(DvrCameraFullScreenPreview.this, "ERROR INITIALISING", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
 }
