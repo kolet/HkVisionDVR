@@ -1,6 +1,7 @@
 package com.example.andrei.cctv;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -95,8 +96,6 @@ public class DvrCameraFullScreenPreview extends Activity {
     public void onBackPressed() {
         // Shutdown SDK
         safeClose();
-        DvrCameraFullScreenPreview.this.finish();
-
         super.onBackPressed();
     }
 
@@ -120,6 +119,9 @@ public class DvrCameraFullScreenPreview extends Activity {
             camera.stop();
             camera = null;
         }
+
+        startActivity(new Intent(this, DvrCamerasListActivity.class));
+        DvrCameraFullScreenPreview.this.finish();
     }
 
     private class InitializeDvrManagerTask extends AsyncTask<Void, Void, String> {
