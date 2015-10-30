@@ -79,6 +79,12 @@ public class DvrCamerasListActivity extends Activity {
         refreshGrid();
     }
 
+    @Override
+    protected void onPause() {
+        super.onPause();
+        safeClose();
+    }
+
     private void setupUI() {
         coordinatorLayout = (CoordinatorLayout) findViewById(R.id.dvr_cameras_coordinator_layout);
         progressBar = (ProgressBar) findViewById(R.id.progress_dvr_cameras);
